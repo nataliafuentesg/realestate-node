@@ -12,9 +12,9 @@ const props = defineProps({
 })
 
 const typeLabels = {
-  house: 'Casa',
-  apartment: 'Apartamento',
-  land: 'Lote',
+  HOUSE: 'Casa',
+  APARTMENT: 'Apartamento',
+  LAND: 'Lote',
 }
 
 function formatPrice(price) {

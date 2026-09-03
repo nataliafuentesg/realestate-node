@@ -15,6 +15,8 @@ const filters = defineModel('filters', {
   default: () => ({ city: '', type: '', maxPrice: '' }),
 })
 
+const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
+
 const heroRef = ref(null)
 const bgRef = ref(null)
 const prefersReducedMotion =
@@ -82,7 +84,7 @@ onBeforeUnmount(() => {
             class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
           >
             <option value="">Todos</option>
-            <option v-for="type in types" :key="type" :value="type">{{ type }}</option>
+            <option v-for="type in types" :key="type" :value="type">{{ typeLabels[type] || type }}</option>
           </select>
         </div>
 

@@ -16,9 +16,9 @@ const loading = ref(true)
 const error = ref(null)
 
 const typeLabels = {
-  house: 'Casa',
-  apartment: 'Apartamento',
-  land: 'Lote',
+  HOUSE: 'Casa',
+  APARTMENT: 'Apartamento',
+  LAND: 'Lote',
 }
 
 function formatPrice(price) {

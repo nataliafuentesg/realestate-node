@@ -17,6 +17,12 @@ body {
   color: var(--color-charcoal);
 }
 
+#properties,
+#about,
+#contact {
+  scroll-margin-top: 100px;
+}
+
 @media (min-width: 768px) {
   body {
     cursor: none;

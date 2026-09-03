@@ -17,7 +17,7 @@
           <p class="font-sans text-sm text-cream/60">+57 300 685 0097</p>
         </div>
 
-        <div>
+        <div id="about">
           <p class="font-sans text-xs tracking-widest text-gold-light">SOBRE NOSOTROS</p>
           <p class="mt-4 max-w-xs font-sans text-sm text-cream/60">
             Ventas Sabana es la división inmobiliaria de Marcapro — mismo equipo, mismo estándar.
