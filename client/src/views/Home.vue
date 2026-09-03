@@ -97,7 +97,7 @@ const filteredProperties = computed(() => {
         <div v-else>
           <PropertyShowcase
             v-for="(property, i) in filteredProperties"
-            :key="property._id"
+            :key="property.id"
             :property="property"
             :index="i"
           />

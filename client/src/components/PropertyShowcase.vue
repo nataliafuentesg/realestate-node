@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
 <template>
   <article v-reveal class="grid items-center gap-10 border-b border-charcoal/10 py-20 first:pt-0 lg:grid-cols-2 lg:gap-16">
     <RouterLink
-      :to="`/propiedad/${property._id}`"
+      :to="`/propiedad/${property.id}`"
       data-cursor-hover
       class="group relative block overflow-hidden"
       :class="reversed ? 'lg:order-2' : ''"
@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
         <p class="mt-8 font-serif text-4xl text-gold">{{ formatPrice(property.price) }}</p>
 
         <RouterLink
-          :to="`/propiedad/${property._id}`"
+          :to="`/propiedad/${property.id}`"
           data-cursor-hover
           class="group mt-8 inline-flex items-center gap-3 border-b border-charcoal/30 pb-1 font-sans text-xs tracking-widest text-charcoal transition-colors hover:border-gold hover:text-gold"
         >

@@ -39,7 +39,7 @@ async function submitForm() {
       email: form.value.email,
       phone: form.value.phone,
       message: form.value.message,
-      property: property.value?._id,
+      property: property.value?.id,
     })
     status.value = 'success'
   } catch (err) {
