@@ -25,7 +25,7 @@ window.addEventListener('scroll', handleScroll)
   >
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-12">
       <RouterLink to="/" data-cursor-hover class="font-serif text-2xl tracking-[0.15em] text-cream">
-        MERIDIAN <span class="text-gold-light">ESTATES</span>
+        VENTAS <span class="text-gold-light">SABANA</span>
       </RouterLink>
 
       <ul class="hidden items-center gap-10 font-sans text-sm tracking-widest text-cream/80 md:flex">

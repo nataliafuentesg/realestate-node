@@ -65,7 +65,7 @@ async function submitForm() {
           CERRAR ✕
         </button>
 
-        <p class="font-sans text-xs tracking-[0.35em] text-gold">MERIDIAN ESTATES</p>
+        <p class="font-sans text-xs tracking-[0.35em] text-gold">VENTAS SABANA</p>
         <h2 class="mt-3 font-serif text-2xl text-charcoal">Agendar una visita</h2>
         <p v-if="property" class="mt-2 font-sans text-sm text-charcoal/60">{{ property.title }}</p>
 

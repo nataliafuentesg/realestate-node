@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const canvasRef = ref(null)
 let renderer, scene, camera, animationId, observer, resizeObserver
-let particles, gem, glow, particlePhases
+let particles, tower, glow, particlePhases
 let mouseX = 0
 let mouseY = 0
 let targetX = 0
@@ -37,7 +37,12 @@ function buildGrid(THREE) {
   return grid
 }
 
-function buildCrystalCluster(THREE) {
+// Una torre residencial abstracta: plantas de vidrio apiladas que se van
+// angostando y girando hacia arriba, como una maqueta de volumetria
+// arquitectonica. Mismo material y paleta que antes (el "cristal" ya se
+// veia bien) -- lo que cambia es la forma, para que de verdad hable de
+// inmobiliaria y no de piedras preciosas flotando.
+function buildTowerModel(THREE) {
   const group = new THREE.Group()
 
   const material = new THREE.MeshPhysicalMaterial({
@@ -50,36 +55,37 @@ function buildCrystalCluster(THREE) {
     iridescenceIOR: 1.3,
     iridescenceThicknessRange: [120, 420],
     transparent: true,
-    opacity: 0.9,
+    opacity: 0.88,
   })
 
   const edgeMat = new THREE.LineBasicMaterial({ color: 0xf0d9a8, transparent: true, opacity: 0.55 })
 
-  const shardPositions = [
-    [-0.62, 0.6, 0.28],
-    [0.52, 0.68, -0.18],
-    [-0.05, 0.92, 0.42],
-    [-0.52, -0.08, 0.58],
-    [0.6, 0.02, 0.2],
-    [0.02, 0.12, -0.6],
-    [-0.32, -0.68, 0.14],
-    [0.42, -0.6, -0.28],
-    [0.06, -0.88, 0.36],
-  ]
+  const floors = 10
+  const baseWidth = 1.15
+  const baseDepth = 0.82
+  const floorHeight = 0.16
+  const gap = 0.1
+  const twistPerFloor = (14 * Math.PI) / 180
+  const totalHeight = floors * (floorHeight + gap)
 
-  shardPositions.forEach((pos, i) => {
-    const size = 0.42 + Math.random() * 0.26
-    const geo =
-      i % 2 === 0 ? new THREE.OctahedronGeometry(size, 0) : new THREE.TetrahedronGeometry(size, 0)
+  for (let i = 0; i < floors; i++) {
+    // Cada planta es un poco mas angosta que la anterior: la torre se
+    // afina hacia arriba en vez de ser un bloque recto.
+    const t = i / (floors - 1)
+    const width = baseWidth * (1 - t * 0.42)
+    const depth = baseDepth * (1 - t * 0.42)
 
-    const shard = new THREE.Mesh(geo, material)
-    shard.position.set(...pos)
-    shard.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
-    group.add(shard)
+    const geo = new THREE.BoxGeometry(width, floorHeight, depth)
+    const floor = new THREE.Mesh(geo, material)
+
+    floor.position.y = -totalHeight / 2 + i * (floorHeight + gap)
+    floor.rotation.y = i * twistPerFloor
+
+    group.add(floor)
 
     const edges = new THREE.EdgesGeometry(geo)
-    shard.add(new THREE.LineSegments(edges, edgeMat))
-  })
+    floor.add(new THREE.LineSegments(edges, edgeMat))
+  }
 
   return group
 }
@@ -106,12 +112,13 @@ function animate() {
     mouseX += (targetX - mouseX) * 0.05
     mouseY += (targetY - mouseY) * 0.05
 
-    gem.rotation.y += 0.004
-    gem.rotation.x = Math.sin(t * 0.3) * 0.15 + mouseY * 0.6
-    gem.rotation.z = mouseX * -0.25
-    const pulse = 1.15 + Math.sin(t * 1.4) * 0.04
-    gem.scale.setScalar(pulse)
-    glow.material.opacity = 0.55 + Math.sin(t * 1.4) * 0.15
+    // La torre gira lento sobre su eje y flota levemente -- nada de
+    // pulso "latiendo": un edificio no respira, se asienta.
+    tower.rotation.y += 0.0025
+    tower.rotation.x = mouseY * 0.18
+    tower.rotation.z = mouseX * -0.08
+    tower.position.y = Math.sin(t * 0.5) * 0.05
+    glow.material.opacity = 0.5 + Math.sin(t * 1.1) * 0.1
 
     particles.rotation.y += 0.0009
     const posAttr = particles.geometry.attributes.position
@@ -153,8 +160,8 @@ async function initScene() {
   point2.position.set(-4, -2, 3)
   scene.add(point2)
 
-  gem = buildCrystalCluster(THREE)
-  scene.add(gem)
+  tower = buildTowerModel(THREE)
+  scene.add(tower)
 
   const glowMat = new THREE.SpriteMaterial({
     map: makeGlowTexture(THREE),

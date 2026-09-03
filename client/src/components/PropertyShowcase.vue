@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
           />
         </div>
         <div v-else class="flex h-full w-full items-center justify-center bg-charcoal/5">
-          <span class="font-serif text-sm tracking-widest text-charcoal/30">MERIDIAN ESTATES</span>
+          <span class="font-serif text-sm tracking-widest text-charcoal/30">VENTAS SABANA</span>
         </div>
       </div>
       <span class="absolute left-6 top-6 bg-charcoal/80 px-4 py-1 font-sans text-[11px] tracking-widest text-cream">
