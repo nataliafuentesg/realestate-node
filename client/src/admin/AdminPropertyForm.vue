@@ -68,6 +68,20 @@ function removeImage(index) {
   form.value.images.splice(index, 1)
 }
 
+const dragIndex = ref(null)
+
+function handleDragStart(index) {
+  dragIndex.value = index
+}
+
+function handleDrop(index) {
+  if (dragIndex.value === null || dragIndex.value === index) return
+  const images = form.value.images
+  const [moved] = images.splice(dragIndex.value, 1)
+  images.splice(index, 0, moved)
+  dragIndex.value = null
+}
+
 function addFeature() {
   const value = newFeature.value.trim()
   if (!value) return
@@ -233,9 +247,26 @@ onMounted(() => {
 
       <div>
         <label class="mb-2 block font-sans text-xs tracking-widest text-charcoal/50">FOTOS</label>
+        <p v-if="form.images.length > 1" class="mb-2 font-sans text-xs text-charcoal/40">
+          Arrastra para reordenar. La primera es la portada.
+        </p>
         <div v-if="form.images.length" class="mb-3 flex flex-wrap gap-3">
-          <div v-for="(url, i) in form.images" :key="url" class="group relative">
+          <div
+            v-for="(url, i) in form.images"
+            :key="url"
+            class="group relative cursor-move"
+            draggable="true"
+            @dragstart="handleDragStart(i)"
+            @dragover.prevent
+            @drop="handleDrop(i)"
+          >
             <img :src="url" class="h-24 w-32 rounded-lg object-cover" alt="" />
+            <span
+              v-if="i === 0"
+              class="absolute bottom-1 left-1 rounded bg-charcoal/80 px-2 py-0.5 font-sans text-[10px] tracking-wide text-cream"
+            >
+              PORTADA
+            </span>
             <button
               type="button"
               @click="removeImage(i)"
