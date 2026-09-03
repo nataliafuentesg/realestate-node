@@ -24,7 +24,7 @@ body {
 }
 
 @media (min-width: 768px) {
-  body {
+  body.cursor-none {
     cursor: none;
   }
 }
