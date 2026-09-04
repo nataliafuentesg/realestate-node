@@ -5,10 +5,6 @@
         VENTAS <span class="text-gold-light">SABANA</span>
       </p>
 
-      <div id="about" class="max-w-xs text-center font-sans text-xs text-cream/40 sm:text-right">
-        Ventas Sabana es la división inmobiliaria de Marcapro — mismo equipo, mismo estándar.
-      </div>
-
       <p class="font-sans text-xs text-cream/40">
         © {{ new Date().getFullYear() }} Ventas Sabana. Una marca de Marcapro.
       </p>

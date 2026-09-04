@@ -6,6 +6,7 @@ import Hero from '../components/Hero.vue'
 import PropertyShowcase from '../components/PropertyShowcase.vue'
 import StatsStrip from '../components/StatsStrip.vue'
 import Divider from '../components/Divider.vue'
+import About from '../components/About.vue'
 import Contact from '../components/Contact.vue'
 import Footer from '../components/Footer.vue'
 import { gsap } from 'gsap'
@@ -106,6 +107,7 @@ const filteredProperties = computed(() => {
       </div>
     </section>
 
+    <About />
     <Contact />
     <Footer />
   </div>
