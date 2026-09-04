@@ -82,7 +82,7 @@ onMounted(async () => {
 
       <div class="mx-auto max-w-6xl px-6 py-16 lg:px-12">
         <div class="grid gap-16 lg:grid-cols-3">
-          <div class="lg:col-span-2">
+          <div class="order-2 lg:order-1 lg:col-span-2">
             <h2 v-reveal class="font-serif text-2xl text-charcoal">Galería</h2>
             <div class="mt-8">
               <PropertyGallery :images="property.images" />
@@ -121,8 +121,8 @@ onMounted(async () => {
             </template>
           </div>
 
-          <aside v-reveal class="lg:col-span-1">
-            <div class="sticky top-28 border border-charcoal/10 bg-white p-8 shadow-sm">
+          <aside v-reveal class="order-1 lg:order-2 lg:col-span-1">
+            <div class="lg:sticky lg:top-28 border border-charcoal/10 bg-white p-8 shadow-sm">
               <p class="font-sans text-xs tracking-widest text-charcoal/50">PRECIO</p>
               <p class="mt-2 font-serif text-3xl text-gold">{{ formatPrice(property.price) }}</p>
 
@@ -166,6 +166,35 @@ onMounted(async () => {
             </div>
           </aside>
         </div>
+      </div>
+
+      <div class="pb-24 lg:hidden"></div>
+
+      <div
+        class="fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-charcoal/10 bg-cream/95 px-4 py-3 backdrop-blur-sm lg:hidden"
+        style="padding-bottom: max(0.75rem, env(safe-area-inset-bottom))"
+      >
+        <button
+          data-cursor-hover
+          class="flex-1 rounded-full bg-charcoal px-4 py-3 font-sans text-xs tracking-widest text-cream"
+          @click="openContactModal(property)"
+        >
+          AGENDAR VISITA
+        </button>
+        <a
+          :href="whatsappHref"
+          target="_blank"
+          rel="noopener"
+          data-cursor-hover
+          class="flex flex-1 items-center justify-center gap-2 rounded-full border border-charcoal/20 px-4 py-3 font-sans text-xs tracking-widest text-charcoal"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 shrink-0">
+            <path
+              d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm0 18.2a8.1 8.1 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1c-.2.2-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5l.4-.4.2-.4a.5.5 0 0 0 0-.4c-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.6a3.6 3.6 0 0 0 1.7.1c.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3Z"
+            />
+          </svg>
+          WHATSAPP
+        </a>
       </div>
     </template>
 

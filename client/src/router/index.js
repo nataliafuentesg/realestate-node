@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import PropertyDetail from '../views/PropertyDetail.vue'
 import { useAdminAuth } from '../admin/auth'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'home', component: Home },
-    { path: '/propiedad/:id', name: 'property-detail', component: PropertyDetail },
+    { path: '/', name: 'home', component: () => import('../views/Home.vue') },
+    {
+      path: '/propiedad/:id',
+      name: 'property-detail',
+      component: () => import('../views/PropertyDetail.vue'),
+    },
     { path: '/admin', name: 'admin-login', component: () => import('../admin/AdminLogin.vue') },
     {
       path: '/admin',
