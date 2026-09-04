@@ -57,6 +57,19 @@ function onKeydown(e) {
   if (e.key === 'ArrowLeft') prevImage()
 }
 
+let touchStartX = 0
+
+function onTouchStart(e) {
+  touchStartX = e.changedTouches[0].clientX
+}
+
+function onTouchEnd(e) {
+  const delta = e.changedTouches[0].clientX - touchStartX
+  if (Math.abs(delta) < 40) return
+  if (delta < 0) nextImage()
+  else prevImage()
+}
+
 onMounted(() => {
   observer = new IntersectionObserver(
     (entries) => {
@@ -98,6 +111,8 @@ onBeforeUnmount(() => {
       v-if="lightboxIndex !== null"
       class="fixed inset-0 z-[200] flex items-center justify-center bg-charcoal/95 backdrop-blur-sm"
       @click.self="closeLightbox"
+      @touchstart.passive="onTouchStart"
+      @touchend.passive="onTouchEnd"
     >
       <button
         data-cursor-hover
@@ -110,7 +125,7 @@ onBeforeUnmount(() => {
       <button
         v-if="images.length > 1"
         data-cursor-hover
-        class="absolute left-4 top-1/2 -translate-y-1/2 p-3 font-serif text-3xl text-cream/70 transition-colors hover:text-gold-light sm:left-8"
+        class="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-cream/10 font-serif text-2xl text-cream transition-colors hover:bg-gold-light hover:text-charcoal sm:left-8 sm:h-12 sm:w-12"
         @click="prevImage"
       >
         ‹
@@ -119,13 +134,13 @@ onBeforeUnmount(() => {
       <img
         :src="images[lightboxIndex]"
         :alt="`Foto ${lightboxIndex + 1}`"
-        class="max-h-[85vh] max-w-[88vw] object-contain shadow-2xl"
+        class="max-h-[85vh] max-w-[88vw] touch-pan-y object-contain shadow-2xl"
       />
 
       <button
         v-if="images.length > 1"
         data-cursor-hover
-        class="absolute right-4 top-1/2 -translate-y-1/2 p-3 font-serif text-3xl text-cream/70 transition-colors hover:text-gold-light sm:right-8"
+        class="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-cream/10 font-serif text-2xl text-cream transition-colors hover:bg-gold-light hover:text-charcoal sm:right-8 sm:h-12 sm:w-12"
         @click="nextImage"
       >
         ›

@@ -5,6 +5,10 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
+// El navbar dinamico de Safari/Chrome moviles dispara resize al mostrarse
+// u ocultarse durante el scroll -- sin esto, ScrollTrigger recalcula todo
+// en cada uno y se ve un parpadeo/salto en el fondo del hero.
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 defineProps({
   cities: { type: Array, default: () => [] },
@@ -45,7 +49,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section ref="heroRef" class="relative h-[92vh] min-h-[600px] bg-charcoal">
+  <section ref="heroRef" class="relative h-[92dvh] min-h-[600px] bg-charcoal">
     <div ref="bgRef" class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       <HeroScene />
       <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-charcoal/30"></div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import api from '../api/axios'
 import Navbar from '../components/Navbar.vue'
@@ -28,6 +28,12 @@ function formatPrice(price) {
     maximumFractionDigits: 0,
   }).format(price)
 }
+
+const whatsappHref = computed(() => {
+  if (!property.value) return ''
+  const message = `Hola, quiero más información sobre: ${property.value.title}\n${window.location.href}`
+  return `https://wa.me/573006850097?text=${encodeURIComponent(message)}`
+})
 
 onMounted(async () => {
   try {
@@ -92,6 +98,26 @@ onMounted(async () => {
               <div v-reveal class="mt-8 border border-charcoal/10">
                 <PropertyMap :lat="property.lat" :lng="property.lng" :title="property.title" />
               </div>
+              <div v-reveal class="mt-4 flex flex-wrap gap-4 font-sans text-sm">
+                <a
+                  :href="`https://www.google.com/maps/search/?api=1&query=${property.lat},${property.lng}`"
+                  target="_blank"
+                  rel="noopener"
+                  data-cursor-hover
+                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                >
+                  Abrir en Google Maps ↗
+                </a>
+                <a
+                  :href="`https://maps.apple.com/?ll=${property.lat},${property.lng}&q=${encodeURIComponent(property.title)}`"
+                  target="_blank"
+                  rel="noopener"
+                  data-cursor-hover
+                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                >
+                  Abrir en Apple Maps ↗
+                </a>
+              </div>
             </template>
           </div>
 
@@ -122,6 +148,21 @@ onMounted(async () => {
               >
                 AGENDAR VISITA
               </button>
+
+              <a
+                :href="whatsappHref"
+                target="_blank"
+                rel="noopener"
+                data-cursor-hover
+                class="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-charcoal/20 px-6 py-4 font-sans text-xs tracking-widest text-charcoal transition-colors hover:border-gold hover:text-gold"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                  <path
+                    d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm0 18.2a8.1 8.1 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1s-.7.8-.9 1c-.2.2-.3.2-.6.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5l.4-.4.2-.4a.5.5 0 0 0 0-.4c-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.6 4.1c.6.3 1.1.4 1.5.6a3.6 3.6 0 0 0 1.7.1c.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3Z"
+                  />
+                </svg>
+                PREGUNTAR POR WHATSAPP
+              </a>
             </div>
           </aside>
         </div>
