@@ -8,10 +8,23 @@ const { isOpen, property, closeContactModal } = useContactModal()
 
 const form = ref({ name: '', email: '', phone: '', message: '' })
 const dates = ref(['', '', ''])
+const times = ref(['', '', ''])
 const status = ref('idle')
 const errorMessage = ref('')
 
 const minDate = getMinVisitDate()
+
+const timeSlots = [
+  '08:00', '09:00', '10:00', '11:00', '12:00',
+  '13:00', '14:00', '15:00', '16:00', '17:00',
+]
+
+function formatTime(time) {
+  const [h] = time.split(':').map(Number)
+  const period = h < 12 ? 'a. m.' : 'p. m.'
+  const hour12 = h % 12 === 0 ? 12 : h % 12
+  return `${hour12}:00 ${period}`
+}
 
 const dateErrors = computed(() =>
   dates.value.map((d) => (d && !isValidVisitDate(d) ? 'No disponible: debe ser al menos 2 días hábiles después de hoy, y no domingo ni festivo.' : '')),
@@ -22,6 +35,7 @@ watch(isOpen, (open) => {
     status.value = 'idle'
     errorMessage.value = ''
     dates.value = ['', '', '']
+    times.value = ['', '', '']
     form.value = {
       name: '',
       email: '',
@@ -48,8 +62,8 @@ function formatDate(isoDate) {
 }
 
 async function submitForm() {
-  if (dates.value.some((d) => !d) || dateErrors.value.some((e) => e)) {
-    errorMessage.value = 'Revisa las 3 fechas propuestas: todas son obligatorias y deben ser válidas.'
+  if (dates.value.some((d) => !d) || times.value.some((t) => !t) || dateErrors.value.some((e) => e)) {
+    errorMessage.value = 'Revisa las 3 fechas y horarios propuestos: todos son obligatorios y deben ser válidos.'
     return
   }
 
@@ -59,9 +73,11 @@ async function submitForm() {
   const intro = property.value
     ? `Me interesa agendar una visita para: ${property.value.title}`
     : 'Me interesa agendar una visita.'
-  const datesList = dates.value.map((d, i) => `${i + 1}. ${formatDate(d)}`).join('\n')
+  const datesList = dates.value
+    .map((d, i) => `${i + 1}. ${formatDate(d)}, ${formatTime(times.value[i])}`)
+    .join('\n')
   const extra = form.value.message ? `\n\n${form.value.message}` : ''
-  const message = `${intro}\n\nFechas propuestas:\n${datesList}${extra}`
+  const message = `${intro}\n\nFechas y horarios propuestos:\n${datesList}${extra}`
 
   try {
     await api.post('/inquiries', {
@@ -134,19 +150,30 @@ async function submitForm() {
               3 FECHAS QUE TE SIRVAN
             </label>
             <p class="mb-2 font-sans text-xs text-charcoal/40">
-              Mínimo 2 días de anticipación. No domingos ni festivos. Confirmamos por teléfono o correo.
+              Mínimo 2 días de anticipación, entre 8:00 a. m. y 5:00 p. m. No domingos ni festivos. Confirmamos
+              por teléfono o correo.
             </p>
             <div class="space-y-2">
-              <div v-for="i in 3" :key="i">
+              <div v-for="i in 3" :key="i" class="flex gap-2">
                 <input
                   v-model="dates[i - 1]"
                   type="date"
                   required
                   :min="minDate"
-                  class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+                  class="w-2/3 border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
                 />
-                <p v-if="dateErrors[i - 1]" class="mt-1 font-sans text-xs text-red-500">{{ dateErrors[i - 1] }}</p>
+                <select
+                  v-model="times[i - 1]"
+                  required
+                  class="w-1/3 border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+                >
+                  <option value="" disabled>Hora</option>
+                  <option v-for="slot in timeSlots" :key="slot" :value="slot">{{ formatTime(slot) }}</option>
+                </select>
               </div>
+              <p v-for="(err, i) in dateErrors" :key="i" v-show="err" class="font-sans text-xs text-red-500">
+                {{ err }}
+              </p>
             </div>
           </div>
 
