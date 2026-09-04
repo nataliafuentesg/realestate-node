@@ -33,7 +33,12 @@ onMounted(() => {
     trigger: heroRef.value,
     start: 'top top',
     end: 'bottom top',
-    scrub: true,
+    // scrub:true ata el cambio de opacidad/escala 1:1 al evento de scroll,
+    // forzando un recalculo sincronico en cada tick -- en movil, compitiendo
+    // con el loop de render de Three.js (corre cada frame aparte), eso se
+    // sentia como parpadeo. Con un numero, GSAP suaviza/retrasa la
+    // actualizacion en vez de forzarla en cada pixel de scroll.
+    scrub: 0.4,
     onUpdate(self) {
       gsap.set(bgRef.value, {
         opacity: 1 - self.progress,

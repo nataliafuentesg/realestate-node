@@ -37,36 +37,36 @@ export async function onRequestGet(context) {
   const { id } = context.params
   const response = await context.next()
 
-  let property
   try {
+    let property
     const res = await fetch(`${API_BASE}/properties/${id}`)
     if (res.ok) property = await res.json()
+    if (!property) return response
+
+    const title = `${property.title} | Ventas Sabana`
+    const typeLabel = TYPE_LABELS[property.type] || property.type
+    const description = `${typeLabel} en ${property.city} — ${formatPrice(property.price)}. ${property.description || ''}`.slice(
+      0,
+      200,
+    )
+    const image = property.images?.[0] || `${SITE_BASE}/og-image.png`
+    const url = `${SITE_BASE}/propiedad/${id}`
+
+    return new HTMLRewriter()
+      .on('title', new SetText(title))
+      .on('meta[name="description"]', new SetAttr('content', description))
+      .on('link[rel="canonical"]', new SetAttr('href', url))
+      .on('meta[property="og:title"]', new SetAttr('content', title))
+      .on('meta[property="og:description"]', new SetAttr('content', description))
+      .on('meta[property="og:image"]', new SetAttr('content', image))
+      .on('meta[property="og:url"]', new SetAttr('content', url))
+      .on('meta[name="twitter:title"]', new SetAttr('content', title))
+      .on('meta[name="twitter:description"]', new SetAttr('content', description))
+      .on('meta[name="twitter:image"]', new SetAttr('content', image))
+      .transform(response)
   } catch (err) {
-    // sin datos, se sirve la pagina con las metaetiquetas genericas
+    // Si algo falla (API caida, propiedad rara, etc) nunca debe tumbar
+    // la pagina real -- se sirve la version generica sin cortar el sitio.
+    return response
   }
-
-  if (!property) return response
-
-  const title = `${property.title} | Ventas Sabana`
-  const typeLabel = TYPE_LABELS[property.type] || property.type
-  const description = `${typeLabel} en ${property.city} — ${formatPrice(property.price)}. ${property.description || ''}`.slice(
-    0,
-    200,
-  )
-  const image = property.images?.[0] || `${SITE_BASE}/og-image.png`
-  const url = `${SITE_BASE}/propiedad/${id}`
-
-  return new HTMLRewriter()
-    .on('title', new SetText(title))
-    .on('meta[name="description"]', new SetAttr('content', description))
-    .on('link[rel="canonical"]', new SetAttr('href', url))
-    .on('meta[property="og:title"]', new SetAttr('content', title))
-    .on('meta[property="og:description"]', new SetAttr('content', description))
-    .on('meta[property="og:image"]', new SetAttr('content', image))
-    .on('meta[property="og:url"]', new SetAttr('content', url))
-    .on('meta[property="og:type"]', new SetAttr('content', 'og:product'))
-    .on('meta[name="twitter:title"]', new SetAttr('content', title))
-    .on('meta[name="twitter:description"]', new SetAttr('content', description))
-    .on('meta[name="twitter:image"]', new SetAttr('content', image))
-    .transform(response)
 }

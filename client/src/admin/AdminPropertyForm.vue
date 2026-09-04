@@ -24,6 +24,16 @@ const form = ref({
   features: [],
 })
 
+const coordsPaste = ref('')
+
+function parseCoordsPaste() {
+  const match = coordsPaste.value.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/)
+  if (!match) return
+  form.value.lat = parseFloat(match[1])
+  form.value.lng = parseFloat(match[2])
+  coordsPaste.value = ''
+}
+
 const newFeature = ref('')
 const uploading = ref(false)
 const uploadError = ref('')
@@ -204,6 +214,34 @@ onMounted(() => {
             min="0"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+            UBICACIÓN (pega coordenadas de Google Maps)
+          </label>
+          <p class="mb-2 font-sans text-xs text-charcoal/40">
+            En Google Maps, clic derecho sobre el punto exacto → clic en las coordenadas para copiarlas → pégalas
+            aquí.
+          </p>
+          <div class="flex gap-2">
+            <input
+              v-model="coordsPaste"
+              @keydown.enter.prevent="parseCoordsPaste"
+              placeholder="Ej: 4.8617, -74.0319"
+              class="flex-1 rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+            />
+            <button
+              type="button"
+              @click="parseCoordsPaste"
+              class="rounded-lg border border-charcoal/15 px-4 py-2.5 font-sans text-sm text-charcoal hover:bg-charcoal/5"
+            >
+              Usar
+            </button>
+          </div>
+          <p v-if="form.lat && form.lng" class="mt-2 font-sans text-xs text-charcoal/50">
+            Guardado: {{ form.lat }}, {{ form.lng }}
+          </p>
         </div>
 
         <div>

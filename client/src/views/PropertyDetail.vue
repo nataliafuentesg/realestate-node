@@ -117,6 +117,15 @@ onMounted(async () => {
                 >
                   Abrir en Apple Maps ↗
                 </a>
+                <a
+                  :href="`https://waze.com/ul?ll=${property.lat},${property.lng}&navigate=yes`"
+                  target="_blank"
+                  rel="noopener"
+                  data-cursor-hover
+                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                >
+                  Abrir en Waze ↗
+                </a>
               </div>
             </template>
           </div>
