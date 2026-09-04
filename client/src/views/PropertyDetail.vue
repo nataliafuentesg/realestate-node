@@ -7,6 +7,7 @@ import Footer from '../components/Footer.vue'
 import PropertyGallery from '../components/PropertyGallery.vue'
 import PropertyMap from '../components/PropertyMap.vue'
 import { useContactModal } from '../composables/useContactModal'
+import { track } from '../lib/analytics'
 
 const { openContactModal } = useContactModal()
 
@@ -35,10 +36,15 @@ const whatsappHref = computed(() => {
   return `https://wa.me/573006850097?text=${encodeURIComponent(message)}`
 })
 
+function trackWhatsApp() {
+  track('WhatsAppClick', { propertyId: property.value?.id })
+}
+
 onMounted(async () => {
   try {
     const res = await api.get(`/properties/${route.params.id}`)
     property.value = res.data
+    track('PropertyView', { propertyId: property.value.id })
   } catch (err) {
     error.value = 'No se pudo cargar esta propiedad'
   } finally {
@@ -181,6 +187,7 @@ onMounted(async () => {
                 target="_blank"
                 rel="noopener"
                 data-cursor-hover
+                @click="trackWhatsApp"
                 class="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-charcoal/20 px-6 py-4 font-sans text-xs tracking-widest text-charcoal transition-colors hover:border-gold hover:text-gold"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
@@ -213,6 +220,7 @@ onMounted(async () => {
           target="_blank"
           rel="noopener"
           data-cursor-hover
+          @click="trackWhatsApp"
           class="flex flex-1 items-center justify-center gap-2 rounded-full border border-charcoal/20 px-4 py-3 font-sans text-xs tracking-widest text-charcoal"
         >
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 shrink-0">

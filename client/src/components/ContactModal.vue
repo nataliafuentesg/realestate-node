@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue'
 import { useContactModal } from '../composables/useContactModal'
 import api from '../api/axios'
 import { getMinVisitDate, isValidVisitDate } from '../lib/colombianHolidays'
+import { track } from '../lib/analytics'
 
 const { isOpen, property, closeContactModal } = useContactModal()
 
@@ -87,6 +88,7 @@ async function submitForm() {
       message,
       property: property.value?.id,
     })
+    track('ScheduleVisit', { propertyId: property.value?.id })
     status.value = 'success'
   } catch (err) {
     status.value = 'error'

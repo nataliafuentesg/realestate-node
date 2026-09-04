@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import api from '../api/axios'
+import { track } from '../lib/analytics'
 
 const purpose = ref('buyer')
 const form = ref({ name: '', email: '', phone: '', message: '' })
@@ -35,6 +36,7 @@ async function submitForm() {
       phone: form.value.phone,
       message,
     })
+    track(purpose.value === 'owner' ? 'ContactFormOwner' : 'ContactFormBuyer')
     status.value = 'success'
   } catch (err) {
     status.value = 'error'
@@ -59,6 +61,7 @@ async function submitForm() {
             target="_blank"
             rel="noopener"
             data-cursor-hover
+            @click="track('WhatsAppClick')"
             class="inline-flex items-center gap-3 rounded-full border border-cream/20 px-6 py-3 font-sans text-sm text-cream transition-colors hover:border-gold-light hover:text-gold-light"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
@@ -70,7 +73,11 @@ async function submitForm() {
           </a>
 
           <p class="font-sans text-sm text-cream/60">
-            <a href="mailto:ventas@marcapro.co" class="transition-colors hover:text-gold-light" data-cursor-hover
+            <a
+              href="mailto:ventas@marcapro.co"
+              class="transition-colors hover:text-gold-light"
+              data-cursor-hover
+              @click="track('EmailClick')"
               >ventas@marcapro.co</a
             >
           </p>

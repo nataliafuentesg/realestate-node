@@ -4,12 +4,20 @@ import { useRoute, RouterView } from 'vue-router'
 import CustomCursor from './components/CustomCursor.vue'
 import ScrollProgress from './components/ScrollProgress.vue'
 import ContactModal from './components/ContactModal.vue'
+import { initPixel, track } from './lib/analytics'
 
 const route = useRoute()
 const isAdmin = computed(() => route.path.startsWith('/admin'))
 
 watchEffect(() => {
   document.body.classList.toggle('cursor-none', !isAdmin.value)
+})
+
+watchEffect(() => {
+  route.fullPath // dependencia reactiva: re-ejecuta en cada navegacion
+  if (isAdmin.value) return
+  initPixel()
+  track('PageView')
 })
 </script>
 

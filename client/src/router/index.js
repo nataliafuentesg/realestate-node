@@ -28,6 +28,7 @@ const router = createRouter({
           component: () => import('../admin/AdminPropertyForm.vue'),
         },
         { path: 'leads', name: 'admin-leads', component: () => import('../admin/AdminLeads.vue') },
+        { path: 'analytics', name: 'admin-analytics', component: () => import('../admin/AdminAnalytics.vue') },
       ],
     },
   ],
