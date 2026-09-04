@@ -57,7 +57,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="!isTouchDevice" class="pointer-events-none fixed inset-0 z-[100] hidden md:block" :class="{ 'opacity-0': !visible }">
+  <div v-if="!isTouchDevice" class="pointer-events-none fixed inset-0 z-[300] hidden md:block" :class="{ 'opacity-0': !visible }">
     <div
       ref="dotRef"
       class="fixed left-0 top-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold-light transition-opacity duration-300"

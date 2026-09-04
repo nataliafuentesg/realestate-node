@@ -99,10 +99,10 @@ async function submitForm() {
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-[200] flex items-center justify-center bg-charcoal/80 px-6 backdrop-blur-sm"
+      class="fixed inset-0 z-[200] flex items-center justify-center bg-charcoal/80 px-6 py-10 backdrop-blur-sm"
       @click.self="closeContactModal"
     >
-      <div class="relative w-full max-w-md bg-cream p-8 shadow-2xl sm:p-10">
+      <div class="relative max-h-full w-full max-w-md overflow-y-auto bg-cream p-8 shadow-2xl sm:p-10">
         <button
           data-cursor-hover
           class="absolute right-5 top-5 font-sans text-xs tracking-widest text-charcoal/50 transition-colors hover:text-gold"
@@ -147,11 +147,12 @@ async function submitForm() {
 
           <div>
             <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
-              3 FECHAS QUE TE SIRVAN
+              3 OPCIONES DE FECHA Y HORA
             </label>
             <p class="mb-2 font-sans text-xs text-charcoal/40">
+              Puedes repetir el mismo día con horas distintas, o usar días diferentes — lo que te sea más fácil.
               Mínimo 2 días de anticipación, entre 8:00 a. m. y 5:00 p. m. No domingos ni festivos. Confirmamos
-              por teléfono o correo.
+              cuál queda por teléfono o correo.
             </p>
             <div class="space-y-2">
               <div v-for="i in 3" :key="i" class="flex gap-2">
