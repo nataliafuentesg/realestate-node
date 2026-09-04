@@ -1,38 +1,15 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 const props = defineProps({
   images: { type: Array, default: () => [] },
 })
 
-const containerRef = ref(null)
-const revealed = ref(false)
-const hoveredIndex = ref(null)
 const lightboxIndex = ref(null)
-let observer
 
-function cardStyle(i) {
-  const n = props.images.length
-  const mid = (n - 1) / 2
-  const offset = i - mid
-  const isHovered = hoveredIndex.value === i
-
-  let rotation = revealed.value ? offset * 9 : 0
-  let translateX = revealed.value ? offset * 78 : 0
-  let translateY = revealed.value ? Math.abs(offset) * 16 : 70
-  const scale = isHovered ? 1.07 : 1
-
-  if (isHovered) {
-    rotation = 0
-    translateY -= 30
-  }
-
-  return {
-    transform: `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(${scale})`,
-    transitionDelay: revealed.value && !isHovered ? `${i * 100}ms` : '0ms',
-    zIndex: isHovered ? 50 : 10 + i,
-  }
-}
+const MAX_THUMBS = 4
+const thumbImages = computed(() => props.images.slice(1, 1 + MAX_THUMBS))
+const extraCount = computed(() => Math.max(0, props.images.length - 1 - MAX_THUMBS))
 
 function openLightbox(i) {
   lightboxIndex.value = i
@@ -71,39 +48,61 @@ function onTouchEnd(e) {
 }
 
 onMounted(() => {
-  observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting) {
-        revealed.value = true
-        observer.disconnect()
-      }
-    },
-    { threshold: 0.2 },
-  )
-  if (containerRef.value) observer.observe(containerRef.value)
   window.addEventListener('keydown', onKeydown)
 })
 
 onBeforeUnmount(() => {
-  observer?.disconnect()
   window.removeEventListener('keydown', onKeydown)
 })
 </script>
 
 <template>
-  <div ref="containerRef" class="relative flex h-[380px] items-center justify-center sm:h-[460px]">
-    <div
-      v-for="(img, i) in images"
-      :key="i"
+  <div v-if="images.length" class="grid grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-sm sm:h-[460px]">
+    <button
+      type="button"
       data-cursor-hover
-      class="absolute h-[300px] w-[220px] cursor-pointer overflow-hidden rounded-sm shadow-2xl ring-1 ring-charcoal/10 transition-transform duration-700 ease-out sm:h-[380px] sm:w-[280px]"
-      :style="cardStyle(i)"
-      @mouseenter="hoveredIndex = i"
-      @mouseleave="hoveredIndex = null"
-      @click="openLightbox(i)"
+      class="group relative col-span-4 row-span-2 h-[300px] overflow-hidden sm:col-span-2 sm:h-full"
+      @click="openLightbox(0)"
     >
-      <img :src="img" :alt="`Foto ${i + 1}`" class="h-full w-full object-cover" draggable="false" />
-    </div>
+      <img
+        :src="images[0]"
+        alt="Foto 1"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        draggable="false"
+      />
+    </button>
+
+    <button
+      v-for="(img, i) in thumbImages"
+      :key="i"
+      type="button"
+      data-cursor-hover
+      class="group relative col-span-1 row-span-1 hidden overflow-hidden sm:block"
+      @click="openLightbox(i + 1)"
+    >
+      <img
+        :src="img"
+        :alt="`Foto ${i + 2}`"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        draggable="false"
+      />
+      <span
+        v-if="i === thumbImages.length - 1 && extraCount > 0"
+        class="absolute inset-0 flex items-center justify-center bg-charcoal/60 font-sans text-sm tracking-widest text-cream"
+      >
+        +{{ extraCount }} FOTOS
+      </span>
+    </button>
+
+    <button
+      v-if="images.length > 1"
+      type="button"
+      data-cursor-hover
+      class="col-span-4 flex items-center justify-center gap-2 rounded-full border border-charcoal/15 bg-white px-5 py-3 font-sans text-xs tracking-widest text-charcoal shadow-sm sm:hidden"
+      @click="openLightbox(0)"
+    >
+      VER LAS {{ images.length }} FOTOS
+    </button>
   </div>
 
   <Teleport to="body">
@@ -149,6 +148,23 @@ onBeforeUnmount(() => {
       <p class="absolute bottom-6 font-sans text-xs tracking-widest text-cream/50">
         {{ lightboxIndex + 1 }} / {{ images.length }}
       </p>
+
+      <div
+        v-if="images.length > 1"
+        class="absolute bottom-16 flex max-w-[90vw] gap-2 overflow-x-auto px-4"
+      >
+        <button
+          v-for="(img, i) in images"
+          :key="i"
+          type="button"
+          data-cursor-hover
+          class="h-12 w-16 shrink-0 overflow-hidden rounded-sm ring-2 transition-opacity"
+          :class="i === lightboxIndex ? 'opacity-100 ring-gold-light' : 'opacity-50 ring-transparent hover:opacity-80'"
+          @click="lightboxIndex = i"
+        >
+          <img :src="img" :alt="`Miniatura ${i + 1}`" class="h-full w-full object-cover" draggable="false" />
+        </button>
+      </div>
     </div>
   </Teleport>
 </template>

@@ -80,7 +80,7 @@ onMounted(async () => {
 
         <div class="absolute inset-x-0 bottom-0 px-6 pb-12 text-center lg:px-12">
           <p class="font-sans text-xs tracking-[0.35em] text-gold-light">
-            {{ property.city?.toUpperCase() }} · {{ typeLabels[property.type] || property.type }}
+            {{ property.neighborhood ? property.neighborhood.toUpperCase() + ' · ' : '' }}{{ property.city?.toUpperCase() }} · {{ typeLabels[property.type] || property.type }}
           </p>
           <h1 class="mt-4 font-serif text-4xl text-cream lg:text-5xl">{{ property.title }}</h1>
         </div>
@@ -95,9 +95,51 @@ onMounted(async () => {
             </div>
 
             <h2 v-reveal class="mt-16 font-serif text-2xl text-charcoal">Descripción</h2>
-            <p v-reveal class="mt-6 font-sans leading-relaxed text-charcoal/70">
+            <p v-reveal class="mt-6 whitespace-pre-line font-sans leading-relaxed text-charcoal/70">
               {{ property.description }}
             </p>
+
+            <template v-if="property.features?.length">
+              <h2 v-reveal class="mt-16 font-serif text-2xl text-charcoal">Características</h2>
+              <ul v-reveal class="mt-6 grid gap-3 sm:grid-cols-2">
+                <li
+                  v-for="feature in property.features"
+                  :key="feature"
+                  class="flex items-start gap-2.5 font-sans text-charcoal/70"
+                >
+                  <span class="mt-0.5 text-gold">✓</span>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+            </template>
+
+            <template
+              v-if="property.propertyRegistration || property.cadastralCode || property.legalStatus || property.zoning || property.address"
+            >
+              <h2 v-reveal class="mt-16 font-serif text-2xl text-charcoal">Información legal y técnica</h2>
+              <dl v-reveal class="mt-6 grid gap-4 sm:grid-cols-2">
+                <div v-if="property.address">
+                  <dt class="font-sans text-xs tracking-widest text-charcoal/40">DIRECCIÓN</dt>
+                  <dd class="mt-1 font-sans text-charcoal/70">{{ property.address }}</dd>
+                </div>
+                <div v-if="property.zoning">
+                  <dt class="font-sans text-xs tracking-widest text-charcoal/40">USO DE SUELO</dt>
+                  <dd class="mt-1 font-sans text-charcoal/70">{{ property.zoning }}</dd>
+                </div>
+                <div v-if="property.propertyRegistration">
+                  <dt class="font-sans text-xs tracking-widest text-charcoal/40">MATRÍCULA INMOBILIARIA</dt>
+                  <dd class="mt-1 font-sans text-charcoal/70">{{ property.propertyRegistration }}</dd>
+                </div>
+                <div v-if="property.cadastralCode">
+                  <dt class="font-sans text-xs tracking-widest text-charcoal/40">CÓDIGO CATASTRAL</dt>
+                  <dd class="mt-1 font-sans text-charcoal/70">{{ property.cadastralCode }}</dd>
+                </div>
+                <div v-if="property.legalStatus">
+                  <dt class="font-sans text-xs tracking-widest text-charcoal/40">ESTADO LEGAL</dt>
+                  <dd class="mt-1 font-sans text-charcoal/70">{{ property.legalStatus }}</dd>
+                </div>
+              </dl>
+            </template>
 
             <template v-if="property.lat && property.lng">
               <h2 v-reveal class="mt-16 font-serif text-2xl text-charcoal">Ubicación</h2>
@@ -166,8 +208,20 @@ onMounted(async () => {
                 <li v-if="property.bathrooms" class="flex justify-between">
                   <span>Baños</span><span class="text-charcoal">{{ property.bathrooms }}</span>
                 </li>
+                <li v-if="property.parking" class="flex justify-between">
+                  <span>Parqueaderos</span><span class="text-charcoal">{{ property.parking }}</span>
+                </li>
                 <li class="flex justify-between">
-                  <span>Área</span><span class="text-charcoal">{{ property.areaM2 }} m²</span>
+                  <span>Área del lote</span><span class="text-charcoal">{{ property.areaM2 }} m²</span>
+                </li>
+                <li v-if="property.areaBuiltM2" class="flex justify-between">
+                  <span>Área construida</span><span class="text-charcoal">{{ property.areaBuiltM2 }} m²</span>
+                </li>
+                <li v-if="property.stratum" class="flex justify-between">
+                  <span>Estrato</span><span class="text-charcoal">{{ property.stratum }}</span>
+                </li>
+                <li v-if="property.neighborhood" class="flex justify-between">
+                  <span>Vereda / Barrio</span><span class="text-charcoal">{{ property.neighborhood }}</span>
                 </li>
                 <li class="flex justify-between">
                   <span>Ciudad</span><span class="text-charcoal">{{ property.city }}</span>

@@ -12,10 +12,19 @@ const form = ref({
   description: '',
   price: null,
   city: '',
+  neighborhood: '',
+  address: '',
   type: 'HOUSE',
   bedrooms: null,
   bathrooms: null,
+  parking: null,
+  stratum: null,
   areaM2: null,
+  areaBuiltM2: null,
+  zoning: '',
+  propertyRegistration: '',
+  cadastralCode: '',
+  legalStatus: '',
   lat: null,
   lng: null,
   agentName: '',
@@ -145,10 +154,14 @@ onMounted(() => {
 
         <div class="sm:col-span-2">
           <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">DESCRIPCIÓN</label>
+          <p class="mb-2 font-sans text-xs text-charcoal/40">
+            Puedes usar saltos de línea, viñetas (- o •) y emojis: se muestran tal cual en la página.
+          </p>
           <textarea
             v-model="form.description"
             required
-            rows="4"
+            rows="6"
+            placeholder="Ej: Amplio lote en zona consolidada de Chía.&#10;- 🚗 Fácil acceso vial&#10;- 💧 Todos los servicios&#10;- 🌳 Zona verde y arbolada"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           ></textarea>
         </div>
@@ -158,6 +171,24 @@ onMounted(() => {
           <input
             v-model="form.city"
             required
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">VEREDA / BARRIO</label>
+          <input
+            v-model="form.neighborhood"
+            placeholder="Ej: Vereda Fonqueta"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">DIRECCIÓN</label>
+          <input
+            v-model="form.address"
+            placeholder="Ej: Sin dirección (predio rural) o Calle 10 # 12-51"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
         </div>
@@ -186,12 +217,22 @@ onMounted(() => {
         </div>
 
         <div>
-          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">ÁREA (M²)</label>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">ÁREA DEL LOTE (M²)</label>
           <input
             v-model.number="form.areaM2"
             type="number"
             min="0"
             required
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">ÁREA CONSTRUIDA (M²)</label>
+          <input
+            v-model.number="form.areaBuiltM2"
+            type="number"
+            min="0"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
         </div>
@@ -212,6 +253,27 @@ onMounted(() => {
             v-model.number="form.bathrooms"
             type="number"
             min="0"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">PARQUEADEROS</label>
+          <input
+            v-model.number="form.parking"
+            type="number"
+            min="0"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">ESTRATO</label>
+          <input
+            v-model.number="form.stratum"
+            type="number"
+            min="0"
+            max="6"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
         </div>
@@ -260,6 +322,46 @@ onMounted(() => {
             v-model.number="form.lng"
             type="number"
             step="any"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div class="sm:col-span-2 mt-2 border-t border-charcoal/10 pt-6">
+          <p class="font-sans text-xs tracking-widest text-charcoal/50">INFORMACIÓN LEGAL Y TÉCNICA (opcional)</p>
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">MATRÍCULA INMOBILIARIA</label>
+          <input
+            v-model="form.propertyRegistration"
+            placeholder="Ej: 50N-369851"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">CÓDIGO CATASTRAL</label>
+          <input
+            v-model="form.cadastralCode"
+            placeholder="Ej: 25-175-00-00-0008-0751"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">ESTADO LEGAL</label>
+          <input
+            v-model="form.legalStatus"
+            placeholder="Ej: Libre de gravamen"
+            class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">USO DE SUELO / ZONIFICACIÓN</label>
+          <input
+            v-model="form.zoning"
+            placeholder="Ej: Residencial - Centro Poblado Rural"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
         </div>
@@ -321,6 +423,9 @@ onMounted(() => {
 
       <div>
         <label class="mb-2 block font-sans text-xs tracking-widest text-charcoal/50">CARACTERÍSTICAS</label>
+        <p class="mb-2 font-sans text-xs text-charcoal/40">
+          Se muestran como viñetas en la página. Puedes agregar un emoji al inicio, ej: "🏊 Piscina".
+        </p>
         <div v-if="form.features.length" class="mb-3 flex flex-wrap gap-2">
           <span
             v-for="(feature, i) in form.features"
