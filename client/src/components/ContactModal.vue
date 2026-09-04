@@ -1,23 +1,32 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useContactModal } from '../composables/useContactModal'
 import api from '../api/axios'
+import { getMinVisitDate, isValidVisitDate } from '../lib/colombianHolidays'
 
 const { isOpen, property, closeContactModal } = useContactModal()
 
 const form = ref({ name: '', email: '', phone: '', message: '' })
+const dates = ref(['', '', ''])
 const status = ref('idle')
 const errorMessage = ref('')
+
+const minDate = getMinVisitDate()
+
+const dateErrors = computed(() =>
+  dates.value.map((d) => (d && !isValidVisitDate(d) ? 'No disponible: debe ser al menos 2 días hábiles después de hoy, y no domingo ni festivo.' : '')),
+)
 
 watch(isOpen, (open) => {
   if (open) {
     status.value = 'idle'
     errorMessage.value = ''
+    dates.value = ['', '', '']
     form.value = {
       name: '',
       email: '',
       phone: '',
-      message: property.value ? `Me interesa agendar una visita para: ${property.value.title}` : '',
+      message: '',
     }
   }
 })
@@ -30,15 +39,36 @@ if (typeof window !== 'undefined') {
   window.addEventListener('keydown', onKeydown)
 }
 
+function formatDate(isoDate) {
+  return new Date(isoDate + 'T00:00:00').toLocaleDateString('es-CO', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
 async function submitForm() {
+  if (dates.value.some((d) => !d) || dateErrors.value.some((e) => e)) {
+    errorMessage.value = 'Revisa las 3 fechas propuestas: todas son obligatorias y deben ser válidas.'
+    return
+  }
+
   status.value = 'sending'
   errorMessage.value = ''
+
+  const intro = property.value
+    ? `Me interesa agendar una visita para: ${property.value.title}`
+    : 'Me interesa agendar una visita.'
+  const datesList = dates.value.map((d, i) => `${i + 1}. ${formatDate(d)}`).join('\n')
+  const extra = form.value.message ? `\n\n${form.value.message}` : ''
+  const message = `${intro}\n\nFechas propuestas:\n${datesList}${extra}`
+
   try {
     await api.post('/inquiries', {
       name: form.value.name,
       email: form.value.email,
       phone: form.value.phone,
-      message: form.value.message,
+      message,
       property: property.value?.id,
     })
     status.value = 'success'
@@ -100,11 +130,33 @@ async function submitForm() {
           </div>
 
           <div>
-            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">MENSAJE</label>
+            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+              3 FECHAS QUE TE SIRVAN
+            </label>
+            <p class="mb-2 font-sans text-xs text-charcoal/40">
+              Mínimo 2 días de anticipación. No domingos ni festivos. Confirmamos por teléfono o correo.
+            </p>
+            <div class="space-y-2">
+              <div v-for="i in 3" :key="i">
+                <input
+                  v-model="dates[i - 1]"
+                  type="date"
+                  required
+                  :min="minDate"
+                  class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+                />
+                <p v-if="dateErrors[i - 1]" class="mt-1 font-sans text-xs text-red-500">{{ dateErrors[i - 1] }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+              MENSAJE (OPCIONAL)
+            </label>
             <textarea
               v-model="form.message"
-              required
-              rows="3"
+              rows="2"
               class="w-full resize-none border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
             ></textarea>
           </div>
