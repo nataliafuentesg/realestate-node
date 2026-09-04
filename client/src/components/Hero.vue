@@ -14,8 +14,8 @@ const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
 </script>
 
 <template>
-  <section class="relative h-[92dvh] min-h-[600px] overflow-hidden bg-charcoal">
-    <div class="absolute inset-0 z-0 pointer-events-none">
+  <section class="relative h-[92dvh] min-h-[600px] bg-charcoal">
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       <HeroScene />
       <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-charcoal/30"></div>
     </div>
