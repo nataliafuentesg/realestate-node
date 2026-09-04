@@ -1,7 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { computed } from 'vue'
 
 const props = defineProps({
   lat: { type: Number, required: true },
@@ -9,45 +7,19 @@ const props = defineProps({
   title: { type: String, default: '' },
 })
 
-const mapContainer = ref(null)
-let map
-
-const goldPin = L.divIcon({
-  className: '',
-  html: `<div style="
-    width: 28px;
-    height: 28px;
-    background: #b28a4c;
-    border: 3px solid #faf6f0;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 4px 12px rgba(26,23,18,0.45);
-  "></div>`,
-  iconSize: [30, 30],
-  iconAnchor: [15, 30],
-  popupAnchor: [0, -34],
-})
-
-onMounted(() => {
-  map = L.map(mapContainer.value, {
-    center: [props.lat, props.lng],
-    zoom: 14,
-    scrollWheelZoom: false,
-  })
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19,
-  }).addTo(map)
-
-  L.marker([props.lat, props.lng], { icon: goldPin }).addTo(map).bindPopup(props.title)
-})
-
-onBeforeUnmount(() => {
-  map?.remove()
-})
+// Embed clasico de Google Maps por URL -- sin API key ni facturacion,
+// a diferencia del Maps JavaScript API. No es la forma "oficial"
+// documentada, pero es estable y la usan miles de sitios para exactamente
+// este caso (un pin fijo, sin necesitar controles interactivos propios).
+const embedSrc = computed(() => `https://maps.google.com/maps?q=${props.lat},${props.lng}&z=15&output=embed`)
 </script>
 
 <template>
-  <div ref="mapContainer" class="h-[380px] w-full"></div>
+  <iframe
+    class="h-[380px] w-full border-0"
+    :src="embedSrc"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    :title="`Mapa de ${title}`"
+  ></iframe>
 </template>

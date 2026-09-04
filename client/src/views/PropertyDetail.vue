@@ -98,33 +98,51 @@ onMounted(async () => {
               <div v-reveal class="mt-8 border border-charcoal/10">
                 <PropertyMap :lat="property.lat" :lng="property.lng" :title="property.title" />
               </div>
-              <div v-reveal class="mt-4 flex flex-wrap gap-4 font-sans text-sm">
+              <div v-reveal class="mt-4 flex flex-wrap gap-3">
                 <a
                   :href="`https://www.google.com/maps/search/?api=1&query=${property.lat},${property.lng}`"
                   target="_blank"
                   rel="noopener"
                   data-cursor-hover
-                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                  class="flex items-center gap-2 rounded-full border border-charcoal/15 bg-white px-5 py-2.5 font-sans text-sm text-charcoal shadow-sm transition-colors hover:border-gold hover:text-gold"
                 >
-                  Abrir en Google Maps ↗
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0">
+                    <path
+                      fill="#4285F4"
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" fill="#fff" />
+                  </svg>
+                  Google Maps
                 </a>
                 <a
                   :href="`https://maps.apple.com/?ll=${property.lat},${property.lng}&q=${encodeURIComponent(property.title)}`"
                   target="_blank"
                   rel="noopener"
                   data-cursor-hover
-                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                  class="flex items-center gap-2 rounded-full border border-charcoal/15 bg-white px-5 py-2.5 font-sans text-sm text-charcoal shadow-sm transition-colors hover:border-gold hover:text-gold"
                 >
-                  Abrir en Apple Maps ↗
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0">
+                    <path
+                      fill="#1a1a1a"
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7Z"
+                    />
+                    <circle cx="12" cy="9" r="2.5" fill="#fff" />
+                  </svg>
+                  Apple Maps
                 </a>
                 <a
                   :href="`https://waze.com/ul?ll=${property.lat},${property.lng}&navigate=yes`"
                   target="_blank"
                   rel="noopener"
                   data-cursor-hover
-                  class="border-b border-charcoal/30 pb-0.5 text-charcoal transition-colors hover:border-gold hover:text-gold"
+                  class="flex items-center gap-2 rounded-full border border-charcoal/15 bg-white px-5 py-2.5 font-sans text-sm text-charcoal shadow-sm transition-colors hover:border-gold hover:text-gold"
                 >
-                  Abrir en Waze ↗
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0">
+                    <circle cx="12" cy="12" r="10" fill="#05C8F7" />
+                    <path fill="#fff" d="M12 6.5 17 12l-5 5.5L7 12Z" />
+                  </svg>
+                  Waze
                 </a>
               </div>
             </template>
