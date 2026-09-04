@@ -61,13 +61,13 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="relative z-10 mx-auto flex h-full max-w-4xl flex-col items-center justify-center px-6 text-center">
-      <p class="mb-4 font-sans text-xs tracking-[0.4em] text-gold-light">RESIDENCIAS EXCLUSIVAS</p>
+      <p class="mb-4 font-sans text-xs tracking-[0.4em] text-gold-light">PROPIEDADES EXCLUSIVAS</p>
       <h1 class="font-serif text-4xl leading-tight text-cream sm:text-5xl lg:text-6xl">
         Propiedades excepcionales,<br />
         <em class="text-gold-light not-italic">para vidas excepcionales</em>
       </h1>
       <p class="mt-6 max-w-xl font-sans text-base text-cream/70">
-        Una selección curada de las residencias más distinguidas del país.
+        Casas, apartamentos y lotes — una selección curada de las mejores propiedades del país.
       </p>
     </div>
 

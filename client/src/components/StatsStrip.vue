@@ -83,7 +83,7 @@ onBeforeUnmount(() => {
     <div v-reveal class="mx-auto grid max-w-4xl grid-cols-3 divide-x divide-cream/10 text-center">
       <div class="px-4">
         <p class="font-serif text-4xl text-gold-light sm:text-5xl"><span ref="propertiesNumRef">0</span></p>
-        <p class="mt-3 font-sans text-xs tracking-widest text-cream/50">RESIDENCIAS</p>
+        <p class="mt-3 font-sans text-xs tracking-widest text-cream/50">PROPIEDADES</p>
       </div>
       <div class="px-4">
         <p class="font-serif text-4xl text-gold-light sm:text-5xl"><span ref="citiesNumRef">0</span></p>

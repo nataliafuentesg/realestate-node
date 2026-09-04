@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const canvasRef = ref(null)
 let renderer, scene, camera, animationId, observer, resizeObserver
-let particles, tower, glow, particlePhases
+let particles, house, glow, particlePhases
 let mouseX = 0
 let mouseY = 0
 let targetX = 0
@@ -37,12 +37,11 @@ function buildGrid(THREE) {
   return grid
 }
 
-// Una torre residencial abstracta: plantas de vidrio apiladas que se van
-// angostando y girando hacia arriba, como una maqueta de volumetria
-// arquitectonica. Mismo material y paleta que antes (el "cristal" ya se
-// veia bien) -- lo que cambia es la forma, para que de verdad hable de
-// inmobiliaria y no de piedras preciosas flotando.
-function buildTowerModel(THREE) {
+// Una casa: cuerpo principal + ala lateral mas baja, cada una con su
+// techo a cuatro aguas -- silueta reconocible como vivienda desde
+// cualquier angulo, no una forma abstracta. Mismo material y paleta que
+// antes (el "cristal" ya se veia bien), solo cambia la forma.
+function buildHouseModel(THREE) {
   const group = new THREE.Group()
 
   const material = new THREE.MeshPhysicalMaterial({
@@ -60,32 +59,28 @@ function buildTowerModel(THREE) {
 
   const edgeMat = new THREE.LineBasicMaterial({ color: 0xf0d9a8, transparent: true, opacity: 0.55 })
 
-  const floors = 10
-  const baseWidth = 1.15
-  const baseDepth = 0.82
-  const floorHeight = 0.16
-  const gap = 0.1
-  const twistPerFloor = (14 * Math.PI) / 180
-  const totalHeight = floors * (floorHeight + gap)
+  function addVolume(width, height, depth, x, groundY, z = 0) {
+    const geo = new THREE.BoxGeometry(width, height, depth)
+    const mesh = new THREE.Mesh(geo, material)
+    mesh.position.set(x, groundY + height / 2, z)
+    mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat))
+    group.add(mesh)
 
-  for (let i = 0; i < floors; i++) {
-    // Cada planta es un poco mas angosta que la anterior: la torre se
-    // afina hacia arriba en vez de ser un bloque recto.
-    const t = i / (floors - 1)
-    const width = baseWidth * (1 - t * 0.42)
-    const depth = baseDepth * (1 - t * 0.42)
-
-    const geo = new THREE.BoxGeometry(width, floorHeight, depth)
-    const floor = new THREE.Mesh(geo, material)
-
-    floor.position.y = -totalHeight / 2 + i * (floorHeight + gap)
-    floor.rotation.y = i * twistPerFloor
-
-    group.add(floor)
-
-    const edges = new THREE.EdgesGeometry(geo)
-    floor.add(new THREE.LineSegments(edges, edgeMat))
+    // Techo a cuatro aguas: un cono de 4 lados forma una piramide que
+    // calza sobre el volumen rectangular.
+    const roofRadius = (Math.sqrt(width * width + depth * depth) / 2) * 0.98
+    const roofHeight = height * 0.55
+    const roofGeo = new THREE.ConeGeometry(roofRadius, roofHeight, 4)
+    const roof = new THREE.Mesh(roofGeo, material)
+    roof.position.set(x, groundY + height + roofHeight / 2, z)
+    roof.rotation.y = Math.PI / 4
+    roof.add(new THREE.LineSegments(new THREE.EdgesGeometry(roofGeo), edgeMat))
+    group.add(roof)
   }
+
+  const groundY = -0.55
+  addVolume(1.5, 0.95, 1.0, 0, groundY, 0) // cuerpo principal
+  addVolume(0.72, 0.6, 0.68, 1.05, groundY, 0.1) // ala lateral, mas baja
 
   return group
 }
@@ -112,12 +107,12 @@ function animate() {
     mouseX += (targetX - mouseX) * 0.05
     mouseY += (targetY - mouseY) * 0.05
 
-    // La torre gira lento sobre su eje y flota levemente -- nada de
-    // pulso "latiendo": un edificio no respira, se asienta.
-    tower.rotation.y += 0.0025
-    tower.rotation.x = mouseY * 0.18
-    tower.rotation.z = mouseX * -0.08
-    tower.position.y = Math.sin(t * 0.5) * 0.05
+    // La casa gira lento sobre su eje y flota levemente -- nada de
+    // pulso "latiendo": una vivienda no respira, se asienta.
+    house.rotation.y += 0.0025
+    house.rotation.x = mouseY * 0.18
+    house.rotation.z = mouseX * -0.08
+    house.position.y = 0.15 + Math.sin(t * 0.5) * 0.05
     glow.material.opacity = 0.5 + Math.sin(t * 1.1) * 0.1
 
     particles.rotation.y += 0.0009
@@ -160,8 +155,8 @@ async function initScene() {
   point2.position.set(-4, -2, 3)
   scene.add(point2)
 
-  tower = buildTowerModel(THREE)
-  scene.add(tower)
+  house = buildHouseModel(THREE)
+  scene.add(house)
 
   const glowMat = new THREE.SpriteMaterial({
     map: makeGlowTexture(THREE),
