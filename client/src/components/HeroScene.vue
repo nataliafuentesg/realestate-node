@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const canvasRef = ref(null)
 let renderer, scene, camera, animationId, observer, resizeObserver
-let particles, house, glow, particlePhases
+let particles, glow, particlePhases
 let mouseX = 0
 let mouseY = 0
 let targetX = 0
@@ -37,54 +37,6 @@ function buildGrid(THREE) {
   return grid
 }
 
-// Una casa: cuerpo principal + ala lateral mas baja, cada una con su
-// techo a cuatro aguas -- silueta reconocible como vivienda desde
-// cualquier angulo, no una forma abstracta. Mismo material y paleta que
-// antes (el "cristal" ya se veia bien), solo cambia la forma.
-function buildHouseModel(THREE) {
-  const group = new THREE.Group()
-
-  const material = new THREE.MeshPhysicalMaterial({
-    color: 0xf0e6d2,
-    metalness: 0.25,
-    roughness: 0.12,
-    clearcoat: 1,
-    clearcoatRoughness: 0.08,
-    iridescence: 1,
-    iridescenceIOR: 1.3,
-    iridescenceThicknessRange: [120, 420],
-    transparent: true,
-    opacity: 0.88,
-  })
-
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0xf0d9a8, transparent: true, opacity: 0.55 })
-
-  function addVolume(width, height, depth, x, groundY, z = 0) {
-    const geo = new THREE.BoxGeometry(width, height, depth)
-    const mesh = new THREE.Mesh(geo, material)
-    mesh.position.set(x, groundY + height / 2, z)
-    mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat))
-    group.add(mesh)
-
-    // Techo a cuatro aguas: un cono de 4 lados forma una piramide que
-    // calza sobre el volumen rectangular.
-    const roofRadius = (Math.sqrt(width * width + depth * depth) / 2) * 0.98
-    const roofHeight = height * 0.55
-    const roofGeo = new THREE.ConeGeometry(roofRadius, roofHeight, 4)
-    const roof = new THREE.Mesh(roofGeo, material)
-    roof.position.set(x, groundY + height + roofHeight / 2, z)
-    roof.rotation.y = Math.PI / 4
-    roof.add(new THREE.LineSegments(new THREE.EdgesGeometry(roofGeo), edgeMat))
-    group.add(roof)
-  }
-
-  const groundY = -0.55
-  addVolume(1.5, 0.95, 1.0, 0, groundY, 0) // cuerpo principal
-  addVolume(0.72, 0.6, 0.68, 1.05, groundY, 0.1) // ala lateral, mas baja
-
-  return group
-}
-
 function onMouseMove(e) {
   targetX = e.clientX / window.innerWidth - 0.5
   targetY = e.clientY / window.innerHeight - 0.5
@@ -107,12 +59,6 @@ function animate() {
     mouseX += (targetX - mouseX) * 0.05
     mouseY += (targetY - mouseY) * 0.05
 
-    // La casa gira lento sobre su eje y flota levemente -- nada de
-    // pulso "latiendo": una vivienda no respira, se asienta.
-    house.rotation.y += 0.0025
-    house.rotation.x = mouseY * 0.18
-    house.rotation.z = mouseX * -0.08
-    house.position.y = 0.15 + Math.sin(t * 0.5) * 0.05
     glow.material.opacity = 0.5 + Math.sin(t * 1.1) * 0.1
 
     particles.rotation.y += 0.0009
@@ -154,9 +100,6 @@ async function initScene() {
   const point2 = new THREE.PointLight(0xd4b483, 1.5, 20)
   point2.position.set(-4, -2, 3)
   scene.add(point2)
-
-  house = buildHouseModel(THREE)
-  scene.add(house)
 
   const glowMat = new THREE.SpriteMaterial({
     map: makeGlowTexture(THREE),

@@ -1,14 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
 import HeroScene from './HeroScene.vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
-// El navbar dinamico de Safari/Chrome moviles dispara resize al mostrarse
-// u ocultarse durante el scroll -- sin esto, ScrollTrigger recalcula todo
-// en cada uno y se ve un parpadeo/salto en el fondo del hero.
-ScrollTrigger.config({ ignoreMobileResize: true })
 
 defineProps({
   cities: { type: Array, default: () => [] },
@@ -20,42 +11,11 @@ const filters = defineModel('filters', {
 })
 
 const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
-
-const heroRef = ref(null)
-const bgRef = ref(null)
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-let st
-
-onMounted(() => {
-  if (prefersReducedMotion || !heroRef.value || !bgRef.value) return
-  st = ScrollTrigger.create({
-    trigger: heroRef.value,
-    start: 'top top',
-    end: 'bottom top',
-    // scrub:true ata el cambio de opacidad/escala 1:1 al evento de scroll,
-    // forzando un recalculo sincronico en cada tick -- en movil, compitiendo
-    // con el loop de render de Three.js (corre cada frame aparte), eso se
-    // sentia como parpadeo. Con un numero, GSAP suaviza/retrasa la
-    // actualizacion en vez de forzarla en cada pixel de scroll.
-    scrub: 0.4,
-    onUpdate(self) {
-      gsap.set(bgRef.value, {
-        opacity: 1 - self.progress,
-        scale: 1 + self.progress * 0.12,
-      })
-    },
-  })
-})
-
-onBeforeUnmount(() => {
-  st?.kill()
-})
 </script>
 
 <template>
-  <section ref="heroRef" class="relative h-[92dvh] min-h-[600px] bg-charcoal">
-    <div ref="bgRef" class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <section class="relative h-[92dvh] min-h-[600px] overflow-hidden bg-charcoal">
+    <div class="absolute inset-0 z-0 pointer-events-none">
       <HeroScene />
       <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/10 to-charcoal/30"></div>
     </div>
