@@ -57,7 +57,23 @@ onMounted(async () => {
   <div class="min-h-screen bg-cream">
     <Navbar solid />
 
-    <p v-if="loading" class="py-32 text-center font-sans text-charcoal/50">Cargando propiedad...</p>
+    <template v-if="loading">
+      <div class="h-[65vh] min-h-[440px] w-full animate-pulse bg-charcoal/10"></div>
+      <div class="mx-auto max-w-6xl px-6 py-16 lg:px-12">
+        <div class="grid gap-16 lg:grid-cols-3">
+          <div class="lg:col-span-2">
+            <div class="h-[380px] animate-pulse rounded-sm bg-charcoal/10 sm:h-[460px]"></div>
+            <div class="mt-16 h-7 w-40 animate-pulse rounded bg-charcoal/10"></div>
+            <div class="mt-6 space-y-3">
+              <div class="h-4 w-full animate-pulse rounded bg-charcoal/10"></div>
+              <div class="h-4 w-full animate-pulse rounded bg-charcoal/10"></div>
+              <div class="h-4 w-2/3 animate-pulse rounded bg-charcoal/10"></div>
+            </div>
+          </div>
+          <div class="h-80 animate-pulse rounded-sm border border-charcoal/10 bg-charcoal/5"></div>
+        </div>
+      </div>
+    </template>
     <p v-else-if="error" class="py-32 text-center font-sans text-red-500">{{ error }}</p>
 
     <template v-else-if="property">
@@ -242,7 +258,7 @@ onMounted(async () => {
                 rel="noopener"
                 data-cursor-hover
                 @click="trackWhatsApp"
-                class="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-charcoal/20 px-6 py-4 font-sans text-xs tracking-widest text-charcoal transition-colors hover:border-gold hover:text-gold"
+                class="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-4 font-sans text-xs tracking-widest text-white shadow-sm transition-colors hover:bg-[#1DA851]"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
                   <path
@@ -275,7 +291,7 @@ onMounted(async () => {
           rel="noopener"
           data-cursor-hover
           @click="trackWhatsApp"
-          class="flex flex-1 items-center justify-center gap-2 rounded-full border border-charcoal/20 px-4 py-3 font-sans text-xs tracking-widest text-charcoal"
+          class="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 font-sans text-xs tracking-widest text-white"
         >
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 shrink-0">
             <path
