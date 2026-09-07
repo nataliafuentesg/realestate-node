@@ -30,6 +30,7 @@ const form = ref({
   agentName: '',
   agentPhone: '',
   images: [],
+  videoUrl: '',
   features: [],
 })
 
@@ -419,6 +420,19 @@ onMounted(() => {
         <input type="file" accept="image/*" multiple @change="handleFileChange" class="font-sans text-sm" />
         <p v-if="uploading" class="mt-2 font-sans text-sm text-charcoal/50">Subiendo...</p>
         <p v-if="uploadError" class="mt-2 font-sans text-sm text-red-600">{{ uploadError }}</p>
+      </div>
+
+      <div>
+        <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">VIDEO (OPCIONAL)</label>
+        <p class="mb-2 font-sans text-xs text-charcoal/40">
+          Link de YouTube/Vimeo, o un .mp4 directo (ese sí se manda como video reproducible por WhatsApp).
+        </p>
+        <input
+          v-model="form.videoUrl"
+          type="url"
+          placeholder="https://..."
+          class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
+        />
       </div>
 
       <div>
