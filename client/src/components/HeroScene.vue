@@ -21,16 +21,16 @@ function makeGlowTexture(THREE) {
   canvas.height = size
   const ctx = canvas.getContext('2d')
   const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
-  gradient.addColorStop(0, 'rgba(240,217,168,0.95)')
-  gradient.addColorStop(0.4, 'rgba(240,217,168,0.35)')
-  gradient.addColorStop(1, 'rgba(240,217,168,0)')
+  gradient.addColorStop(0, 'rgba(248,113,113,0.95)')
+  gradient.addColorStop(0.4, 'rgba(248,113,113,0.35)')
+  gradient.addColorStop(1, 'rgba(248,113,113,0)')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, size, size)
   return new THREE.CanvasTexture(canvas)
 }
 
 function buildGrid(THREE) {
-  const grid = new THREE.GridHelper(40, 40, 0xd4b483, 0x5a4a30)
+  const grid = new THREE.GridHelper(40, 40, 0xef4444, 0x5a1a1a)
   grid.position.y = -1.8
   grid.material.transparent = true
   grid.material.opacity = 0.55
@@ -94,16 +94,16 @@ async function initScene() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
   scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-  const point = new THREE.PointLight(0xf0d9a8, 3, 25)
+  const point = new THREE.PointLight(0xf87171, 3, 25)
   point.position.set(3, 4, 4)
   scene.add(point)
-  const point2 = new THREE.PointLight(0xd4b483, 1.5, 20)
+  const point2 = new THREE.PointLight(0xef4444, 1.5, 20)
   point2.position.set(-4, -2, 3)
   scene.add(point2)
 
   const glowMat = new THREE.SpriteMaterial({
     map: makeGlowTexture(THREE),
-    color: 0xf0d9a8,
+    color: 0xf87171,
     transparent: true,
     opacity: 0.6,
     depthWrite: false,
@@ -125,7 +125,7 @@ async function initScene() {
   const particleGeo = new THREE.BufferGeometry()
   particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
   const particleMat = new THREE.PointsMaterial({
-    color: 0xf0d9a8,
+    color: 0xf87171,
     size: 0.045,
     transparent: true,
     opacity: 0.85,
