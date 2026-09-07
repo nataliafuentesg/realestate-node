@@ -33,7 +33,7 @@ function formatPrice(price) {
 const whatsappHref = computed(() => {
   if (!property.value) return ''
   const message = `Hola, quiero más información sobre: ${property.value.title}\n${window.location.href}`
-  return `https://wa.me/573006850097?text=${encodeURIComponent(message)}`
+  return `https://wa.me/573112210714?text=${encodeURIComponent(message)}`
 })
 
 function trackWhatsApp() {

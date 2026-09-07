@@ -57,7 +57,7 @@ async function submitForm() {
 
         <div class="mt-8 space-y-4">
           <a
-            href="https://wa.me/573006850097"
+            href="https://wa.me/573112210714"
             target="_blank"
             rel="noopener"
             data-cursor-hover
@@ -81,7 +81,7 @@ async function submitForm() {
               >ventas@marcapro.co</a
             >
           </p>
-          <p class="font-sans text-sm text-cream/60">+57 300 685 0097</p>
+          <p class="font-sans text-sm text-cream/60">+57 311 221 0714</p>
         </div>
 
         <div class="mt-8 flex gap-3">

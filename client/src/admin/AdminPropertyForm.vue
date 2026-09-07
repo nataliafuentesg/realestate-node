@@ -379,7 +379,7 @@ onMounted(() => {
           <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">TELÉFONO AGENTE</label>
           <input
             v-model="form.agentPhone"
-            placeholder="+57 300 685 0097"
+            placeholder="+57 311 221 0714"
             class="w-full rounded-lg border border-charcoal/15 bg-white px-4 py-2.5 font-sans text-charcoal focus:border-gold focus:outline-none"
           />
         </div>

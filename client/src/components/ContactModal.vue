@@ -139,12 +139,19 @@ async function submitForm() {
           </div>
 
           <div>
-            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">TELÉFONO (OPCIONAL)</label>
+            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+              TELÉFONO (WHATSAPP)
+            </label>
             <input
               v-model="form.phone"
               type="tel"
+              required
+              placeholder="Ej: 300 123 4567"
               class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
             />
+            <p class="mt-1 font-sans text-xs text-charcoal/40">
+              Ahí te confirmamos por WhatsApp cuál de las fechas propuestas queda.
+            </p>
           </div>
 
           <div>
@@ -153,8 +160,8 @@ async function submitForm() {
             </label>
             <p class="mb-2 font-sans text-xs text-charcoal/40">
               Puedes repetir el mismo día con horas distintas, o usar días diferentes — lo que te sea más fácil.
-              Mínimo 2 días de anticipación, entre 8:00 a. m. y 5:00 p. m. No domingos ni festivos. Confirmamos
-              cuál queda por teléfono o correo.
+              Mínimo 2 días de anticipación, entre 8:00 a. m. y 5:00 p. m. No domingos ni festivos. Te confirmamos
+              cuál queda por WhatsApp.
             </p>
             <div class="space-y-2">
               <div v-for="i in 3" :key="i" class="flex gap-2">
