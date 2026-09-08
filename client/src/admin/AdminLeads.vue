@@ -96,7 +96,7 @@ onMounted(loadInquiries)
 
 <template>
   <div>
-    <h1 class="font-serif text-2xl text-charcoal">Leads</h1>
+    <h1 class="font-serif text-2xl text-charcoal">📋 Leads</h1>
 
     <p v-if="loading" class="mt-10 font-sans text-charcoal/50">Cargando...</p>
     <p v-else-if="error" class="mt-10 font-sans text-red-600">{{ error }}</p>

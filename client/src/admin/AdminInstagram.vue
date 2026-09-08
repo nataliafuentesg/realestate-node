@@ -87,56 +87,59 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="p-6 max-w-5xl mx-auto">
-    <h1 class="text-2xl font-semibold mb-1">Respuestas de Instagram por publicación</h1>
-    <p class="text-sm text-gray-500 mb-6">
+  <div>
+    <h1 class="font-serif text-2xl text-charcoal">📸 Respuestas por publicación</h1>
+    <p class="mt-1 max-w-xl font-sans text-sm text-charcoal/50">
       Cuando alguien comenta "info" en una publicación, elige qué le llega por DM: la info de un
       lote específico, un texto personalizado (ej. la auditoría gratis), o el mensaje genérico si
       no asignas nada.
     </p>
 
-    <div v-if="error" class="mb-4 rounded bg-red-50 text-red-700 px-4 py-3 text-sm">{{ error }}</div>
-    <div v-if="loading" class="text-gray-500">Cargando publicaciones…</div>
+    <p v-if="error" class="mt-4 font-sans text-sm text-red-600">{{ error }}</p>
+    <p v-if="loading" class="mt-10 font-sans text-charcoal/50">Cargando publicaciones…</p>
 
-    <div v-else class="space-y-4">
+    <div v-else class="mt-8 space-y-4">
       <div
         v-for="media in posts"
         :key="media.id"
-        class="border rounded-lg p-4 flex gap-4 bg-white"
+        class="flex gap-4 rounded-xl border border-charcoal/10 bg-white p-4"
       >
         <img
           v-if="media.thumbnail_url || media.media_url"
           :src="media.thumbnail_url || media.media_url"
-          class="w-24 h-24 object-cover rounded flex-shrink-0"
+          class="h-24 w-24 shrink-0 rounded-lg object-cover"
           alt=""
         />
-        <div class="flex-1 min-w-0">
+        <div class="min-w-0 flex-1">
           <a
             :href="media.permalink"
             target="_blank"
             rel="noopener"
-            class="text-sm font-medium text-gray-800 hover:underline"
+            class="font-sans text-sm font-medium text-charcoal hover:text-gold"
           >
             {{ truncate(media.caption) }}
           </a>
 
-          <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
-            <label class="flex items-center gap-1">
-              <input type="radio" :name="`mode-${media.id}`" value="generic" v-model="modeByMedia[media.id]" />
+          <div class="mt-3 flex flex-wrap items-center gap-4 font-sans text-sm text-charcoal/70">
+            <label class="flex items-center gap-1.5">
+              <input type="radio" :name="`mode-${media.id}`" value="generic" v-model="modeByMedia[media.id]" class="accent-gold" />
               Genérico
             </label>
-            <label class="flex items-center gap-1">
-              <input type="radio" :name="`mode-${media.id}`" value="property" v-model="modeByMedia[media.id]" />
+            <label class="flex items-center gap-1.5">
+              <input type="radio" :name="`mode-${media.id}`" value="property" v-model="modeByMedia[media.id]" class="accent-gold" />
               Propiedad específica
             </label>
-            <label class="flex items-center gap-1">
-              <input type="radio" :name="`mode-${media.id}`" value="custom" v-model="modeByMedia[media.id]" />
+            <label class="flex items-center gap-1.5">
+              <input type="radio" :name="`mode-${media.id}`" value="custom" v-model="modeByMedia[media.id]" class="accent-gold" />
               Texto personalizado
             </label>
           </div>
 
           <div v-if="modeByMedia[media.id] === 'property'" class="mt-2">
-            <select v-model="propertyIdByMedia[media.id]" class="border rounded px-2 py-1 text-sm w-full max-w-sm">
+            <select
+              v-model="propertyIdByMedia[media.id]"
+              class="w-full max-w-sm rounded-lg border border-charcoal/15 bg-white px-3 py-1.5 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
+            >
               <option :value="null">Elige una propiedad…</option>
               <option v-for="p in properties" :key="p.id" :value="p.id">{{ p.title }}</option>
             </select>
@@ -146,32 +149,34 @@ onMounted(load)
             <textarea
               v-model="customTextByMedia[media.id]"
               rows="3"
-              class="border rounded px-2 py-1 text-sm w-full"
+              class="w-full rounded-lg border border-charcoal/15 bg-white px-3 py-2 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
               placeholder="Ej: ¡Genial! Agenda tu auditoría gratis aquí: https://marcapro.co/#contacto"
             ></textarea>
           </div>
 
-          <div class="mt-3 flex items-center gap-3">
+          <div class="mt-3 flex items-center gap-4">
             <button
               @click="save(media)"
               :disabled="savingId === media.id"
-              class="bg-gray-900 text-white text-sm px-3 py-1.5 rounded hover:bg-gray-700 disabled:opacity-50"
+              class="rounded-full bg-charcoal px-5 py-1.5 font-sans text-xs tracking-widest text-cream hover:bg-gold hover:text-charcoal disabled:opacity-50"
             >
-              {{ savingId === media.id ? 'Guardando…' : 'Guardar' }}
+              {{ savingId === media.id ? 'GUARDANDO…' : 'GUARDAR' }}
             </button>
             <button
               v-if="postReplies[media.id]"
               @click="clearAssignment(media)"
-              class="text-sm text-gray-500 hover:text-red-600"
+              class="font-sans text-sm text-charcoal/40 hover:text-red-600"
             >
               Quitar asignación
             </button>
-            <span v-if="savedId === media.id" class="text-sm text-green-600">Guardado ✓</span>
+            <span v-if="savedId === media.id" class="font-sans text-sm text-green-600">Guardado ✓</span>
           </div>
         </div>
       </div>
 
-      <p v-if="!posts.length" class="text-gray-500">No se encontraron publicaciones recientes.</p>
+      <p v-if="!posts.length" class="font-sans text-charcoal/50">
+        No se encontraron publicaciones recientes.
+      </p>
     </div>
   </div>
 </template>

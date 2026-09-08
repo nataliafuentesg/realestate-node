@@ -16,6 +16,7 @@ const router = createRouter({
       component: () => import('../admin/AdminLayout.vue'),
       meta: { requiresAuth: true },
       children: [
+        { path: 'panel', name: 'admin-dashboard', component: () => import('../admin/AdminDashboard.vue') },
         { path: 'propiedades', name: 'admin-properties', component: () => import('../admin/AdminProperties.vue') },
         {
           path: 'propiedades/nueva',

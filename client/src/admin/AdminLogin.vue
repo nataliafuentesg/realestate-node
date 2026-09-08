@@ -8,7 +8,7 @@ const router = useRouter()
 const { setToken, isAuthenticated } = useAdminAuth()
 
 onMounted(() => {
-  if (isAuthenticated()) router.push('/admin/propiedades')
+  if (isAuthenticated()) router.push('/admin/panel')
 })
 
 const email = ref('')
@@ -22,7 +22,7 @@ async function handleSubmit() {
   try {
     const res = await api.post('/auth/login', { email: email.value, password: password.value })
     setToken(res.data.token)
-    router.push('/admin/propiedades')
+    router.push('/admin/panel')
   } catch (err) {
     error.value =
       err.response?.status === 401 || err.response?.status === 403

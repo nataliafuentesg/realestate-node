@@ -82,7 +82,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex h-[calc(100vh-5rem)] flex-col lg:h-[calc(100vh-6rem)]">
-    <h1 class="font-serif text-2xl text-charcoal">Instagram DMs</h1>
+    <h1 class="font-serif text-2xl text-charcoal">📸 Instagram DMs</h1>
     <p v-if="error" class="mt-2 font-sans text-sm text-red-600">{{ error }}</p>
 
     <div class="mt-6 flex min-h-0 flex-1 gap-6">

@@ -48,7 +48,7 @@ onMounted(loadProperties)
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <h1 class="font-serif text-2xl text-charcoal">Propiedades</h1>
+      <h1 class="font-serif text-2xl text-charcoal">🏡 Propiedades</h1>
       <RouterLink
         to="/admin/propiedades/nueva"
         class="rounded-full bg-charcoal px-6 py-2.5 font-sans text-xs tracking-widest text-cream transition-colors hover:bg-gold hover:text-charcoal"

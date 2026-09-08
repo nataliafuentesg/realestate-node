@@ -83,7 +83,7 @@ onMounted(load)
 <template>
   <div>
     <div class="flex flex-wrap items-center justify-between gap-4">
-      <h1 class="font-serif text-2xl text-charcoal">Analítica</h1>
+      <h1 class="font-serif text-2xl text-charcoal">📊 Analítica</h1>
 
       <div class="flex gap-2">
         <select
