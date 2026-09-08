@@ -43,6 +43,13 @@ function handleLogout() {
             WhatsApp
           </RouterLink>
           <RouterLink
+            to="/admin/instagram"
+            class="rounded-lg px-4 py-2.5 text-cream/70 transition-colors hover:bg-cream/5 hover:text-cream"
+            active-class="!bg-gold-light/10 !text-gold-light"
+          >
+            Instagram
+          </RouterLink>
+          <RouterLink
             to="/admin/analytics"
             class="rounded-lg px-4 py-2.5 text-cream/70 transition-colors hover:bg-cream/5 hover:text-cream"
             active-class="!bg-gold-light/10 !text-gold-light"
