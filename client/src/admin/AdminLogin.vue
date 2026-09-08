@@ -35,45 +35,54 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-charcoal px-6">
+  <div class="mp-dotgrid flex min-h-screen items-center justify-center bg-mp-bg px-6">
     <form
       @submit.prevent="handleSubmit"
-      class="w-full max-w-sm rounded-2xl bg-cream p-8 shadow-2xl"
+      class="w-full max-w-sm rounded-2xl border border-mp-border/10 bg-mp-surface p-8 shadow-2xl"
     >
-      <p class="text-center font-serif text-xl tracking-[0.15em] text-charcoal">
-        VENTAS <span class="text-gold">SABANA</span>
+      <div class="flex items-center justify-center gap-2.5">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-mp-primary font-[family-name:var(--font-mp-heading)] text-sm font-bold text-white"
+        >
+          M
+        </span>
+        <p class="font-[family-name:var(--font-mp-heading)] text-lg font-medium text-mp-fg">
+          Marca<span class="text-mp-primary-hover">pro</span>
+        </p>
+      </div>
+      <p class="mt-1 text-center font-[family-name:var(--font-mp-body)] text-xs tracking-widest text-mp-muted">
+        VENTAS SABANA · ADMINISTRACIÓN
       </p>
-      <p class="mt-1 text-center font-sans text-xs tracking-widest text-charcoal/50">ADMINISTRACIÓN</p>
 
-      <div class="mt-8 space-y-4">
+      <div class="mt-8 space-y-4 font-[family-name:var(--font-mp-body)]">
         <div>
-          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">CORREO</label>
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">CORREO</label>
           <input
             v-model="email"
             type="email"
             required
             autocomplete="username"
-            class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+            class="w-full border-b border-mp-border/15 bg-transparent py-2 text-mp-fg focus:border-mp-primary focus:outline-none"
           />
         </div>
         <div>
-          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">CONTRASEÑA</label>
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">CONTRASEÑA</label>
           <input
             v-model="password"
             type="password"
             required
             autocomplete="current-password"
-            class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+            class="w-full border-b border-mp-border/15 bg-transparent py-2 text-mp-fg focus:border-mp-primary focus:outline-none"
           />
         </div>
       </div>
 
-      <p v-if="error" class="mt-4 font-sans text-sm text-red-600">{{ error }}</p>
+      <p v-if="error" class="mt-4 font-[family-name:var(--font-mp-body)] text-sm text-red-400">{{ error }}</p>
 
       <button
         type="submit"
         :disabled="loading"
-        class="mt-8 w-full rounded-full bg-charcoal px-8 py-3 font-sans text-xs tracking-widest text-cream transition-colors hover:bg-gold hover:text-charcoal disabled:opacity-50"
+        class="mt-8 w-full rounded-full bg-mp-primary px-8 py-3 font-[family-name:var(--font-mp-body)] text-xs tracking-widest text-white transition-colors hover:bg-mp-primary-hover disabled:opacity-50"
       >
         {{ loading ? 'ENTRANDO...' : 'ENTRAR' }}
       </button>

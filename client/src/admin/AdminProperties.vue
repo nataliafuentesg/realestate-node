@@ -46,27 +46,27 @@ onMounted(loadProperties)
 </script>
 
 <template>
-  <div>
+  <div class="font-[family-name:var(--font-mp-body)]">
     <div class="flex items-center justify-between">
-      <h1 class="font-serif text-2xl text-charcoal">🏡 Propiedades</h1>
+      <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">🏡 Propiedades</h1>
       <RouterLink
         to="/admin/propiedades/nueva"
-        class="rounded-full bg-charcoal px-6 py-2.5 font-sans text-xs tracking-widest text-cream transition-colors hover:bg-gold hover:text-charcoal"
+        class="rounded-full bg-mp-primary px-6 py-2.5 text-xs tracking-widest text-white transition-colors hover:bg-mp-primary-hover"
       >
         + NUEVA PROPIEDAD
       </RouterLink>
     </div>
 
-    <p v-if="loading" class="mt-10 font-sans text-charcoal/50">Cargando...</p>
-    <p v-else-if="error" class="mt-10 font-sans text-red-600">{{ error }}</p>
-    <p v-else-if="properties.length === 0" class="mt-10 font-sans text-charcoal/50">
+    <p v-if="loading" class="mt-10 text-mp-muted">Cargando...</p>
+    <p v-else-if="error" class="mt-10 text-red-400">{{ error }}</p>
+    <p v-else-if="properties.length === 0" class="mt-10 text-mp-muted">
       Todavía no hay propiedades. Crea la primera.
     </p>
 
-    <div v-else class="mt-8 overflow-x-auto rounded-xl border border-charcoal/10 bg-white">
-      <table class="w-full text-left font-sans text-sm">
+    <div v-else class="mt-8 overflow-x-auto rounded-xl border border-mp-border/10 bg-mp-surface">
+      <table class="w-full text-left text-sm">
         <thead>
-          <tr class="border-b border-charcoal/10 text-xs tracking-widest text-charcoal/40">
+          <tr class="border-b border-mp-border/10 text-xs tracking-widest text-mp-muted/60">
             <th class="px-5 py-3 font-normal">PROPIEDAD</th>
             <th class="px-5 py-3 font-normal">CIUDAD</th>
             <th class="px-5 py-3 font-normal">TIPO</th>
@@ -75,7 +75,7 @@ onMounted(loadProperties)
           </tr>
         </thead>
         <tbody>
-          <tr v-for="property in properties" :key="property.id" class="border-b border-charcoal/5 last:border-0">
+          <tr v-for="property in properties" :key="property.id" class="border-b border-mp-border/5 last:border-0">
             <td class="flex items-center gap-3 px-5 py-3">
               <img
                 v-if="property.images?.[0]"
@@ -83,23 +83,23 @@ onMounted(loadProperties)
                 class="h-10 w-14 rounded object-cover"
                 alt=""
               />
-              <div v-else class="h-10 w-14 rounded bg-charcoal/5"></div>
-              <span class="text-charcoal">{{ property.title }}</span>
+              <div v-else class="h-10 w-14 rounded bg-white/5"></div>
+              <span class="text-mp-fg">{{ property.title }}</span>
             </td>
-            <td class="px-5 py-3 text-charcoal/70">{{ property.city }}</td>
-            <td class="px-5 py-3 text-charcoal/70">{{ typeLabels[property.type] || property.type }}</td>
-            <td class="px-5 py-3 text-charcoal/70">{{ formatPrice(property.price) }}</td>
+            <td class="px-5 py-3 text-mp-muted">{{ property.city }}</td>
+            <td class="px-5 py-3 text-mp-muted">{{ typeLabels[property.type] || property.type }}</td>
+            <td class="px-5 py-3 text-mp-muted">{{ formatPrice(property.price) }}</td>
             <td class="px-5 py-3 text-right">
               <RouterLink
                 :to="`/admin/propiedades/${property.id}/editar`"
-                class="mr-4 text-gold hover:underline"
+                class="mr-4 text-mp-primary-hover hover:underline"
               >
                 Editar
               </RouterLink>
               <button
                 @click="handleDelete(property)"
                 :disabled="deletingId === property.id"
-                class="text-red-600 hover:underline disabled:opacity-50"
+                class="text-red-400 hover:underline disabled:opacity-50"
               >
                 {{ deletingId === property.id ? 'Eliminando...' : 'Eliminar' }}
               </button>

@@ -45,28 +45,30 @@ const navGroups = [
 </script>
 
 <template>
-  <div class="min-h-screen bg-cream lg:flex">
-    <aside class="flex flex-col justify-between bg-charcoal px-5 py-8 lg:w-64 lg:shrink-0">
+  <div class="mp-dotgrid min-h-screen bg-mp-bg lg:flex">
+    <aside class="flex flex-col justify-between border-r border-mp-border/10 bg-mp-surface/60 px-5 py-8 backdrop-blur lg:w-64 lg:shrink-0">
       <div>
         <div class="flex items-center gap-2.5 px-1">
           <span
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold font-serif text-sm font-bold text-cream"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-mp-primary font-[family-name:var(--font-mp-heading)] text-sm font-bold text-white"
           >
             M
           </span>
           <div>
-            <p class="font-serif text-base leading-tight tracking-[0.1em] text-cream">
-              VENTAS <span class="text-gold-light">SABANA</span>
+            <p class="font-[family-name:var(--font-mp-heading)] text-base font-medium leading-tight text-mp-fg">
+              Marca<span class="text-mp-primary-hover">pro</span>
             </p>
-            <p class="font-sans text-[10px] tracking-widest text-cream/40">ADMINISTRACIÓN</p>
+            <p class="font-[family-name:var(--font-mp-body)] text-[10px] tracking-widest text-mp-muted">
+              VENTAS SABANA · ADMIN
+            </p>
           </div>
         </div>
 
-        <nav class="mt-10 flex flex-col gap-5 font-sans text-sm">
+        <nav class="mt-10 flex flex-col gap-5 font-[family-name:var(--font-mp-body)] text-sm">
           <div v-for="(group, i) in navGroups" :key="i">
             <p
               v-if="group.label"
-              class="mb-1.5 px-4 font-sans text-[10px] font-medium tracking-widest text-cream/30"
+              class="mb-1.5 px-4 text-[10px] font-medium tracking-widest text-mp-muted/60"
             >
               {{ group.label.toUpperCase() }}
             </p>
@@ -75,8 +77,8 @@ const navGroups = [
                 v-for="item in group.items"
                 :key="item.to"
                 :to="item.to"
-                class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-cream/70 transition-colors hover:bg-cream/5 hover:text-cream"
-                active-class="!bg-gold-light/10 !text-gold-light"
+                class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
+                active-class="!bg-mp-primary/15 !text-mp-primary-hover"
               >
                 <component :is="item.icon" :size="16" :stroke-width="1.75" class="shrink-0" />
                 {{ item.label }}
@@ -88,7 +90,7 @@ const navGroups = [
 
       <button
         @click="handleLogout"
-        class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left font-sans text-sm text-cream/50 transition-colors hover:bg-cream/5 hover:text-cream"
+        class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left font-[family-name:var(--font-mp-body)] text-sm text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
       >
         <LogOut :size="16" :stroke-width="1.75" />
         Cerrar sesión

@@ -13,10 +13,10 @@ const confirmError = ref('')
 
 const statusLabels = { NEW: 'Nuevo', CONTACTED: 'Contactado', CONFIRMED: 'Cita confirmada', CLOSED: 'Cerrado' }
 const statusStyles = {
-  NEW: 'bg-gold-light/20 text-gold',
-  CONTACTED: 'bg-blue-100 text-blue-700',
-  CONFIRMED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-charcoal/10 text-charcoal/50',
+  NEW: 'bg-mp-primary/15 text-mp-primary-hover',
+  CONTACTED: 'bg-blue-500/15 text-blue-400',
+  CONFIRMED: 'bg-green-500/15 text-green-400',
+  CLOSED: 'bg-white/10 text-mp-muted',
 }
 
 function formatDate(value) {
@@ -95,12 +95,12 @@ onMounted(loadInquiries)
 </script>
 
 <template>
-  <div>
-    <h1 class="font-serif text-2xl text-charcoal">📋 Leads</h1>
+  <div class="font-[family-name:var(--font-mp-body)]">
+    <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">📋 Leads</h1>
 
-    <p v-if="loading" class="mt-10 font-sans text-charcoal/50">Cargando...</p>
-    <p v-else-if="error" class="mt-10 font-sans text-red-600">{{ error }}</p>
-    <p v-else-if="inquiries.length === 0" class="mt-10 font-sans text-charcoal/50">
+    <p v-if="loading" class="mt-10 text-mp-muted">Cargando...</p>
+    <p v-else-if="error" class="mt-10 text-red-400">{{ error }}</p>
+    <p v-else-if="inquiries.length === 0" class="mt-10 text-mp-muted">
       Todavía no hay consultas recibidas.
     </p>
 
@@ -108,33 +108,33 @@ onMounted(loadInquiries)
       <div
         v-for="inquiry in inquiries"
         :key="inquiry.id"
-        class="rounded-xl border border-charcoal/10 bg-white p-5"
+        class="rounded-xl border border-mp-border/10 bg-mp-surface p-5"
       >
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p class="font-sans text-charcoal">
+            <p class="text-mp-fg">
               <span class="font-medium">{{ inquiry.name }}</span>
-              <span class="ml-2 text-sm text-charcoal/50">{{ inquiry.email }}</span>
+              <span class="ml-2 text-sm text-mp-muted">{{ inquiry.email }}</span>
             </p>
-            <p v-if="inquiry.phone" class="mt-0.5 font-sans text-sm text-charcoal/50">{{ inquiry.phone }}</p>
-            <p v-if="inquiry.propertyTitle" class="mt-1 font-sans text-sm text-gold">
+            <p v-if="inquiry.phone" class="mt-0.5 text-sm text-mp-muted">{{ inquiry.phone }}</p>
+            <p v-if="inquiry.propertyTitle" class="mt-1 text-sm text-mp-primary-hover">
               Sobre: {{ inquiry.propertyTitle }}
             </p>
-            <p v-if="inquiry.confirmedAt" class="mt-1 font-sans text-sm text-green-700">
+            <p v-if="inquiry.confirmedAt" class="mt-1 text-sm text-green-400">
               Visita confirmada: {{ formatDate(inquiry.confirmedAt) }}
             </p>
-            <p class="mt-1 font-sans text-xs text-charcoal/40">{{ formatDate(inquiry.createdAt) }}</p>
+            <p class="mt-1 text-xs text-mp-muted/60">{{ formatDate(inquiry.createdAt) }}</p>
           </div>
 
           <div class="flex items-center gap-2">
-            <span :class="['rounded-full px-3 py-1 font-sans text-xs', statusStyles[inquiry.status]]">
+            <span :class="['rounded-full px-3 py-1 text-xs', statusStyles[inquiry.status]]">
               {{ statusLabels[inquiry.status] }}
             </span>
             <select
               :value="inquiry.status"
               @change="handleStatusChange(inquiry, $event.target.value)"
               :disabled="updatingId === inquiry.id"
-              class="rounded-lg border border-charcoal/15 bg-white px-2 py-1 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
+              class="rounded-lg border border-mp-border/15 bg-mp-surface px-2 py-1 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
             >
               <option value="NEW">Nuevo</option>
               <option value="CONTACTED">Contactado</option>
@@ -147,51 +147,51 @@ onMounted(loadInquiries)
         <div class="mt-3 flex flex-wrap gap-4">
           <button
             @click="toggleExpand(inquiry.id)"
-            class="font-sans text-sm text-charcoal/50 hover:text-charcoal"
+            class="text-sm text-mp-muted hover:text-mp-fg"
           >
             {{ expandedId === inquiry.id ? 'Ocultar mensaje' : 'Ver mensaje' }}
           </button>
           <button
             v-if="inquiry.propertyTitle || inquiry.status !== 'CLOSED'"
             @click="openConfirm(inquiry)"
-            class="font-sans text-sm text-gold hover:underline"
+            class="text-sm text-mp-primary-hover hover:underline"
           >
             {{ inquiry.confirmedAt ? 'Cambiar fecha confirmada' : 'Confirmar cita' }}
           </button>
-          <button @click="handleDelete(inquiry)" class="font-sans text-sm text-red-600 hover:underline">
+          <button @click="handleDelete(inquiry)" class="text-sm text-red-400 hover:underline">
             Eliminar
           </button>
         </div>
 
         <p
           v-if="expandedId === inquiry.id"
-          class="mt-2 whitespace-pre-wrap rounded-lg bg-charcoal/5 p-4 font-sans text-sm text-charcoal/80"
+          class="mt-2 whitespace-pre-wrap rounded-lg bg-white/5 p-4 text-sm text-mp-fg/80"
         >
           {{ inquiry.message }}
         </p>
 
-        <div v-if="confirmingId === inquiry.id" class="mt-3 flex flex-wrap items-end gap-3 rounded-lg bg-gold-light/10 p-4">
+        <div v-if="confirmingId === inquiry.id" class="mt-3 flex flex-wrap items-end gap-3 rounded-lg bg-mp-primary/10 p-4">
           <div>
-            <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+            <label class="mb-1 block text-xs tracking-widest text-mp-muted">
               FECHA Y HORA CONFIRMADA
             </label>
             <input
               v-model="confirmValue"
               type="datetime-local"
-              class="rounded-lg border border-charcoal/15 bg-white px-3 py-2 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
+              class="rounded-lg border border-mp-border/15 bg-mp-surface px-3 py-2 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
             />
           </div>
           <button
             @click="submitConfirm(inquiry)"
             :disabled="updatingId === inquiry.id"
-            class="rounded-full bg-charcoal px-5 py-2 font-sans text-xs tracking-widest text-cream hover:bg-gold hover:text-charcoal disabled:opacity-50"
+            class="rounded-full bg-mp-primary px-5 py-2 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
           >
             {{ updatingId === inquiry.id ? 'AVISANDO...' : 'CONFIRMAR Y AVISAR POR WHATSAPP' }}
           </button>
-          <button @click="confirmingId = null" class="font-sans text-sm text-charcoal/50 hover:text-charcoal">
+          <button @click="confirmingId = null" class="text-sm text-mp-muted hover:text-mp-fg">
             Cancelar
           </button>
-          <p v-if="confirmError" class="w-full font-sans text-sm text-red-600">{{ confirmError }}</p>
+          <p v-if="confirmError" class="w-full text-sm text-red-400">{{ confirmError }}</p>
         </div>
       </div>
     </div>

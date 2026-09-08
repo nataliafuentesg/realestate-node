@@ -87,22 +87,22 @@ onMounted(load)
 </script>
 
 <template>
-  <div>
-    <h1 class="font-serif text-2xl text-charcoal">📸 Respuestas por publicación</h1>
-    <p class="mt-1 max-w-xl font-sans text-sm text-charcoal/50">
+  <div class="font-[family-name:var(--font-mp-body)]">
+    <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">📸 Respuestas por publicación</h1>
+    <p class="mt-1 max-w-xl text-sm text-mp-muted">
       Cuando alguien comenta "info" en una publicación, elige qué le llega por DM: la info de un
       lote específico, un texto personalizado (ej. la auditoría gratis), o el mensaje genérico si
       no asignas nada.
     </p>
 
-    <p v-if="error" class="mt-4 font-sans text-sm text-red-600">{{ error }}</p>
-    <p v-if="loading" class="mt-10 font-sans text-charcoal/50">Cargando publicaciones…</p>
+    <p v-if="error" class="mt-4 text-sm text-red-400">{{ error }}</p>
+    <p v-if="loading" class="mt-10 text-mp-muted">Cargando publicaciones…</p>
 
     <div v-else class="mt-8 space-y-4">
       <div
         v-for="media in posts"
         :key="media.id"
-        class="flex gap-4 rounded-xl border border-charcoal/10 bg-white p-4"
+        class="flex gap-4 rounded-xl border border-mp-border/10 bg-mp-surface p-4"
       >
         <img
           v-if="media.thumbnail_url || media.media_url"
@@ -115,22 +115,22 @@ onMounted(load)
             :href="media.permalink"
             target="_blank"
             rel="noopener"
-            class="font-sans text-sm font-medium text-charcoal hover:text-gold"
+            class="text-sm font-medium text-mp-fg hover:text-mp-primary-hover"
           >
             {{ truncate(media.caption) }}
           </a>
 
-          <div class="mt-3 flex flex-wrap items-center gap-4 font-sans text-sm text-charcoal/70">
+          <div class="mt-3 flex flex-wrap items-center gap-4 text-sm text-mp-muted">
             <label class="flex items-center gap-1.5">
-              <input type="radio" :name="`mode-${media.id}`" value="generic" v-model="modeByMedia[media.id]" class="accent-gold" />
+              <input type="radio" :name="`mode-${media.id}`" value="generic" v-model="modeByMedia[media.id]" class="accent-mp-primary" />
               Genérico
             </label>
             <label class="flex items-center gap-1.5">
-              <input type="radio" :name="`mode-${media.id}`" value="property" v-model="modeByMedia[media.id]" class="accent-gold" />
+              <input type="radio" :name="`mode-${media.id}`" value="property" v-model="modeByMedia[media.id]" class="accent-mp-primary" />
               Propiedad específica
             </label>
             <label class="flex items-center gap-1.5">
-              <input type="radio" :name="`mode-${media.id}`" value="custom" v-model="modeByMedia[media.id]" class="accent-gold" />
+              <input type="radio" :name="`mode-${media.id}`" value="custom" v-model="modeByMedia[media.id]" class="accent-mp-primary" />
               Texto personalizado
             </label>
           </div>
@@ -138,7 +138,7 @@ onMounted(load)
           <div v-if="modeByMedia[media.id] === 'property'" class="mt-2">
             <select
               v-model="propertyIdByMedia[media.id]"
-              class="w-full max-w-sm rounded-lg border border-charcoal/15 bg-white px-3 py-1.5 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
+              class="w-full max-w-sm rounded-lg border border-mp-border/15 bg-mp-bg px-3 py-1.5 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
             >
               <option :value="null">Elige una propiedad…</option>
               <option v-for="p in properties" :key="p.id" :value="p.id">{{ p.title }}</option>
@@ -149,7 +149,7 @@ onMounted(load)
             <textarea
               v-model="customTextByMedia[media.id]"
               rows="3"
-              class="w-full rounded-lg border border-charcoal/15 bg-white px-3 py-2 font-sans text-sm text-charcoal focus:border-gold focus:outline-none"
+              class="w-full rounded-lg border border-mp-border/15 bg-mp-bg px-3 py-2 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
               placeholder="Ej: ¡Genial! Agenda tu auditoría gratis aquí: https://marcapro.co/#contacto"
             ></textarea>
           </div>
@@ -158,23 +158,23 @@ onMounted(load)
             <button
               @click="save(media)"
               :disabled="savingId === media.id"
-              class="rounded-full bg-charcoal px-5 py-1.5 font-sans text-xs tracking-widest text-cream hover:bg-gold hover:text-charcoal disabled:opacity-50"
+              class="rounded-full bg-mp-primary px-5 py-1.5 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
             >
               {{ savingId === media.id ? 'GUARDANDO…' : 'GUARDAR' }}
             </button>
             <button
               v-if="postReplies[media.id]"
               @click="clearAssignment(media)"
-              class="font-sans text-sm text-charcoal/40 hover:text-red-600"
+              class="text-sm text-mp-muted/70 hover:text-red-400"
             >
               Quitar asignación
             </button>
-            <span v-if="savedId === media.id" class="font-sans text-sm text-green-600">Guardado ✓</span>
+            <span v-if="savedId === media.id" class="text-sm text-green-400">Guardado ✓</span>
           </div>
         </div>
       </div>
 
-      <p v-if="!posts.length" class="font-sans text-charcoal/50">
+      <p v-if="!posts.length" class="text-mp-muted">
         No se encontraron publicaciones recientes.
       </p>
     </div>

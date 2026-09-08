@@ -85,44 +85,44 @@ onMounted(loadAll)
 </script>
 
 <template>
-  <div>
-    <h1 class="font-serif text-2xl text-charcoal">Panel</h1>
-    <p class="mt-1 font-sans text-sm text-charcoal/50">Un vistazo rápido a Ventas Sabana ahora mismo.</p>
+  <div class="font-[family-name:var(--font-mp-body)]">
+    <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">Panel</h1>
+    <p class="mt-1 text-sm text-mp-muted">Un vistazo rápido a Ventas Sabana ahora mismo.</p>
 
-    <p v-if="error" class="mt-4 font-sans text-sm text-red-600">{{ error }}</p>
+    <p v-if="error" class="mt-4 text-sm text-red-400">{{ error }}</p>
 
     <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <RouterLink
         v-for="stat in stats"
         :key="stat.label"
         :to="stat.to"
-        class="group rounded-2xl border border-charcoal/10 bg-white p-6 transition-shadow hover:shadow-lg"
+        class="group rounded-2xl border border-mp-border/10 bg-mp-surface p-6 transition-colors hover:border-mp-primary/40"
       >
         <div class="flex items-center justify-between">
           <span
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-gold-light/10 text-gold"
+            class="flex h-10 w-10 items-center justify-center rounded-xl bg-mp-primary/10 text-mp-primary-hover"
           >
             <component :is="stat.icon" :size="20" :stroke-width="1.75" />
           </span>
           <span class="text-lg">{{ stat.emoji }}</span>
         </div>
-        <p class="mt-5 font-serif text-3xl text-charcoal">
-          <span v-if="loading" class="inline-block h-8 w-12 animate-pulse rounded bg-charcoal/10"></span>
+        <p class="mt-5 font-[family-name:var(--font-mp-heading)] text-3xl font-medium text-mp-fg">
+          <span v-if="loading" class="inline-block h-8 w-12 animate-pulse rounded bg-white/10"></span>
           <span v-else>{{ stat.value }}</span>
         </p>
-        <p class="mt-1 font-sans text-sm text-charcoal/60">{{ stat.label }}</p>
-        <p v-if="stat.sub" class="mt-0.5 font-sans text-xs text-charcoal/40">{{ stat.sub }}</p>
+        <p class="mt-1 text-sm text-mp-muted">{{ stat.label }}</p>
+        <p v-if="stat.sub" class="mt-0.5 text-xs text-mp-muted/60">{{ stat.sub }}</p>
       </RouterLink>
     </div>
 
     <div class="mt-10">
-      <p class="font-sans text-xs font-medium tracking-widest text-charcoal/40">ACCESOS RÁPIDOS</p>
+      <p class="text-xs font-medium tracking-widest text-mp-muted/60">ACCESOS RÁPIDOS</p>
       <div class="mt-3 flex flex-wrap gap-3">
         <RouterLink
           v-for="link in quickLinks"
           :key="link.to"
           :to="link.to"
-          class="group flex items-center gap-2 rounded-full border border-charcoal/15 bg-white px-5 py-2.5 font-sans text-sm text-charcoal transition-colors hover:border-gold hover:text-gold"
+          class="group flex items-center gap-2 rounded-full border border-mp-border/15 bg-mp-surface px-5 py-2.5 text-sm text-mp-fg transition-colors hover:border-mp-primary hover:text-mp-primary-hover"
         >
           <span>{{ link.emoji }}</span>
           {{ link.label }}
