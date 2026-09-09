@@ -3,14 +3,16 @@ import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Building2, ClipboardList, MessageCircle, Camera, ArrowRight } from '@lucide/vue'
 import api from '../api/axios'
+import { useUnreadCounts, countUnread } from './useUnreadCounts'
 
 const loading = ref(true)
 const error = ref('')
 
 const properties = ref([])
 const inquiries = ref([])
-const whatsappConversations = ref([])
-const instagramConversations = ref([])
+const { whatsappConversations, instagramConversations } = useUnreadCounts()
+const waUnread = computed(() => countUnread(whatsappConversations.value))
+const igUnread = computed(() => countUnread(instagramConversations.value))
 
 function isToday(dateString) {
   if (!dateString) return false
@@ -41,6 +43,7 @@ const stats = computed(() => [
   {
     label: 'Conversaciones WhatsApp',
     value: whatsappConversations.value.length,
+    sub: waUnread.value > 0 ? `${waUnread.value} sin responder` : 'Todo al día',
     icon: MessageCircle,
     emoji: '💬',
     to: '/admin/whatsapp',
@@ -48,6 +51,7 @@ const stats = computed(() => [
   {
     label: 'Conversaciones Instagram',
     value: instagramConversations.value.length,
+    sub: igUnread.value > 0 ? `${igUnread.value} sin responder` : 'Todo al día',
     icon: Camera,
     emoji: '📸',
     to: '/admin/instagram/dms',
@@ -64,16 +68,9 @@ async function loadAll() {
   loading.value = true
   error.value = ''
   try {
-    const [propsRes, inquiriesRes, waRes, igRes] = await Promise.all([
-      api.get('/properties'),
-      api.get('/inquiries'),
-      api.get('/whatsapp/conversations'),
-      api.get('/instagram/conversations'),
-    ])
+    const [propsRes, inquiriesRes] = await Promise.all([api.get('/properties'), api.get('/inquiries')])
     properties.value = propsRes.data ?? []
     inquiries.value = inquiriesRes.data ?? []
-    whatsappConversations.value = waRes.data ?? []
-    instagramConversations.value = igRes.data ?? []
   } catch (err) {
     error.value = 'No se pudo cargar toda la información del panel.'
   } finally {

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
+import { ArrowLeft } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -22,6 +23,10 @@ function formatPhone(waId) {
 
 function formatTime(value) {
   return new Date(value).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+function isUnread(c) {
+  return c.lastDirection === 'INBOUND'
 }
 
 const selectedConversation = computed(() => conversations.value.find((c) => c.waId === selectedWaId.value))
@@ -87,12 +92,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex h-[calc(100vh-5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
+  <div class="flex h-[calc(100vh-6.5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
     <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">💬 WhatsApp</h1>
     <p v-if="error" class="mt-2 text-sm text-red-400">{{ error }}</p>
 
-    <div class="mt-6 flex min-h-0 flex-1 gap-6">
-      <div class="w-full max-w-xs shrink-0 overflow-y-auto rounded-xl border border-mp-border/10 bg-mp-surface">
+    <div class="mt-4 flex min-h-0 flex-1 gap-6 lg:mt-6">
+      <!-- Lista de conversaciones: en movil ocupa toda la pantalla y se oculta al abrir un chat -->
+      <div
+        class="w-full shrink-0 overflow-y-auto rounded-xl border border-mp-border/10 bg-mp-surface lg:block lg:max-w-xs"
+        :class="selectedWaId ? 'hidden' : 'block'"
+      >
         <p v-if="loadingConversations" class="p-5 text-sm text-mp-muted">Cargando...</p>
         <p v-else-if="conversations.length === 0" class="p-5 text-sm text-mp-muted">
           Todavía no hay conversaciones.
@@ -101,32 +110,50 @@ onBeforeUnmount(() => {
           v-for="c in conversations"
           :key="c.waId"
           @click="selectConversation(c.waId)"
-          class="block w-full border-b border-mp-border/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
+          class="flex w-full items-start gap-2 border-b border-mp-border/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
           :class="selectedWaId === c.waId ? 'bg-mp-primary/10' : ''"
         >
-          <p class="text-sm font-medium text-mp-fg">
-            {{ c.contactName || formatPhone(c.waId) }}
-          </p>
-          <p v-if="c.contactName" class="text-xs text-mp-muted/60">{{ formatPhone(c.waId) }}</p>
-          <p class="mt-1 truncate text-xs text-mp-muted">
-            {{ c.lastDirection === 'OUTBOUND' ? 'Tú: ' : '' }}{{ c.lastMessage }}
-          </p>
-          <p class="mt-1 text-[10px] text-mp-muted/50">{{ formatTime(c.lastMessageAt) }}</p>
+          <span
+            class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+            :class="isUnread(c) ? 'bg-mp-primary' : 'bg-transparent'"
+          ></span>
+          <span class="min-w-0 flex-1">
+            <p class="truncate text-sm" :class="isUnread(c) ? 'font-semibold text-mp-fg' : 'font-medium text-mp-fg'">
+              {{ c.contactName || formatPhone(c.waId) }}
+            </p>
+            <p v-if="c.contactName" class="text-xs text-mp-muted/60">{{ formatPhone(c.waId) }}</p>
+            <p class="mt-1 truncate text-xs" :class="isUnread(c) ? 'text-mp-fg/80' : 'text-mp-muted'">
+              {{ c.lastDirection === 'OUTBOUND' ? 'Tú: ' : '' }}{{ c.lastMessage }}
+            </p>
+            <p class="mt-1 text-[10px] text-mp-muted/50">{{ formatTime(c.lastMessageAt) }}</p>
+          </span>
         </button>
       </div>
 
-      <div class="flex min-w-0 flex-1 flex-col rounded-xl border border-mp-border/10 bg-mp-surface">
+      <!-- Hilo del chat: en movil ocupa toda la pantalla solo cuando hay uno seleccionado -->
+      <div
+        class="min-w-0 flex-1 flex-col rounded-xl border border-mp-border/10 bg-mp-surface lg:flex"
+        :class="selectedWaId ? 'flex' : 'hidden'"
+      >
         <template v-if="selectedWaId">
-          <div class="border-b border-mp-border/10 px-5 py-3">
-            <p class="text-sm font-medium text-mp-fg">
-              {{ selectedConversation?.contactName || formatPhone(selectedWaId) }}
-            </p>
-            <p v-if="selectedConversation?.contactName" class="text-xs text-mp-muted/60">
-              {{ formatPhone(selectedWaId) }}
-            </p>
+          <div class="flex items-center gap-2 border-b border-mp-border/10 px-3 py-3 lg:px-5">
+            <button
+              @click="selectedWaId = null"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-mp-muted hover:bg-white/5 hover:text-mp-fg lg:hidden"
+            >
+              <ArrowLeft :size="18" :stroke-width="1.75" />
+            </button>
+            <div>
+              <p class="text-sm font-medium text-mp-fg">
+                {{ selectedConversation?.contactName || formatPhone(selectedWaId) }}
+              </p>
+              <p v-if="selectedConversation?.contactName" class="text-xs text-mp-muted/60">
+                {{ formatPhone(selectedWaId) }}
+              </p>
+            </div>
           </div>
 
-          <div ref="threadRef" class="flex-1 space-y-3 overflow-y-auto p-5">
+          <div ref="threadRef" class="flex-1 space-y-3 overflow-y-auto p-4 lg:p-5">
             <p v-if="loadingThread" class="text-sm text-mp-muted">Cargando...</p>
             <div
               v-for="m in messages"
@@ -135,7 +162,7 @@ onBeforeUnmount(() => {
               :class="m.direction === 'OUTBOUND' ? 'justify-end' : 'justify-start'"
             >
               <div
-                class="max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm"
+                class="max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm sm:max-w-[75%]"
                 :class="
                   m.direction === 'OUTBOUND'
                     ? 'rounded-br-sm bg-mp-primary text-white'
@@ -153,7 +180,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <form @submit.prevent="sendReply" class="flex gap-2 border-t border-mp-border/10 p-4">
+          <form @submit.prevent="sendReply" class="flex gap-2 border-t border-mp-border/10 p-3 lg:p-4">
             <input
               v-model="replyText"
               type="text"
@@ -174,7 +201,7 @@ onBeforeUnmount(() => {
           </p>
         </template>
 
-        <div v-else class="flex flex-1 items-center justify-center">
+        <div v-else class="hidden flex-1 items-center justify-center lg:flex">
           <p class="text-sm text-mp-muted/60">Selecciona una conversación</p>
         </div>
       </div>
