@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink, RouterView } from 'vue-router'
 import {
   LayoutDashboard,
@@ -12,9 +12,13 @@ import {
   LogOut,
   Menu,
   X,
+  Bell,
+  BellOff,
+  BellDot,
 } from '@lucide/vue'
 import { useAdminAuth } from './auth'
 import { useUnreadCounts, countUnread } from './useUnreadCounts'
+import { isPushSupported, getPushState, enablePush, disablePush } from './push'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,6 +31,41 @@ const igUnread = computed(() => countUnread(instagramConversations.value))
 function handleLogout() {
   logout()
   router.push('/admin')
+}
+
+// Notificaciones push: "not-subscribed" | "subscribed" | "denied" | "unsupported"
+const pushState = ref('not-subscribed')
+const pushBusy = ref(false)
+const pushError = ref('')
+
+onMounted(async () => {
+  if (!isPushSupported()) {
+    pushState.value = 'unsupported'
+    return
+  }
+  pushState.value = await getPushState()
+})
+
+async function togglePush() {
+  pushBusy.value = true
+  pushError.value = ''
+  try {
+    if (pushState.value === 'subscribed') {
+      await disablePush()
+      pushState.value = 'not-subscribed'
+    } else {
+      await enablePush()
+      pushState.value = 'subscribed'
+    }
+  } catch (err) {
+    pushState.value = await getPushState()
+    pushError.value =
+      pushState.value === 'denied'
+        ? 'Bloqueaste las notificaciones para este sitio. Actívalas desde la configuración del navegador.'
+        : 'No se pudo activar. Intenta de nuevo.'
+  } finally {
+    pushBusy.value = false
+  }
 }
 
 const mobileMenuOpen = ref(false)
@@ -150,13 +189,39 @@ const navGroups = computed(() => [
         </nav>
       </div>
 
-      <button
-        @click="handleLogout"
-        class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left font-[family-name:var(--font-mp-body)] text-sm text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
-      >
-        <LogOut :size="16" :stroke-width="1.75" />
-        Cerrar sesión
-      </button>
+      <div class="flex flex-col gap-2 font-[family-name:var(--font-mp-body)]">
+        <button
+          v-if="pushState !== 'unsupported'"
+          @click="togglePush"
+          :disabled="pushBusy || pushState === 'denied'"
+          class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/5 disabled:opacity-50"
+          :class="pushState === 'subscribed' ? 'text-mp-primary-hover' : 'text-mp-muted hover:text-mp-fg'"
+        >
+          <BellDot v-if="pushState === 'subscribed'" :size="16" :stroke-width="1.75" />
+          <BellOff v-else-if="pushState === 'denied'" :size="16" :stroke-width="1.75" />
+          <Bell v-else :size="16" :stroke-width="1.75" />
+          <span class="flex-1">
+            {{
+              pushState === 'subscribed'
+                ? 'Notificaciones activas'
+                : pushState === 'denied'
+                  ? 'Notificaciones bloqueadas'
+                  : pushBusy
+                    ? 'Activando...'
+                    : 'Activar notificaciones'
+            }}
+          </span>
+        </button>
+        <p v-if="pushError" class="px-4 text-xs text-red-400">{{ pushError }}</p>
+
+        <button
+          @click="handleLogout"
+          class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left text-sm text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
+        >
+          <LogOut :size="16" :stroke-width="1.75" />
+          Cerrar sesión
+        </button>
+      </div>
     </aside>
 
     <main class="min-w-0 flex-1 p-4 sm:p-6 lg:p-10">

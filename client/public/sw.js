@@ -1,0 +1,44 @@
+// Service worker del panel de admin: solo maneja notificaciones push (no
+// cachea nada, no es un PWA offline completo -- lo minimo necesario para
+// que lleguen avisos de mensajes nuevos aunque el panel no este abierto).
+
+self.addEventListener('install', () => {
+  self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim())
+})
+
+self.addEventListener('push', (event) => {
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch (e) {
+    data = { title: 'Marcapro', body: event.data ? event.data.text() : '' }
+  }
+
+  const title = data.title || 'Marcapro'
+  const options = {
+    body: data.body || '',
+    icon: '/favicon.png',
+    badge: '/favicon.png',
+    data: { url: data.url || '/admin/panel' },
+  }
+
+  event.waitUntil(self.registration.showNotification(title, options))
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const url = event.notification.data?.url || '/admin/panel'
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes(url) && 'focus' in client) return client.focus()
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url)
+    }),
+  )
+})
