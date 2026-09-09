@@ -18,6 +18,11 @@ watchEffect(() => {
   if (isAdmin.value) return
   initPixel()
   track('PageView')
+
+  // Google Analytics: al ser una SPA (no recarga al navegar), hay que
+  // reenviar el page_view a mano en cada cambio de ruta -- el gtag('config')
+  // del <head> solo cubre la carga inicial.
+  if (window.gtag) window.gtag('event', 'page_view', { page_path: route.fullPath })
 })
 </script>
 
