@@ -32,6 +32,7 @@ const router = createRouter({
         { path: 'whatsapp', name: 'admin-whatsapp', component: () => import('../admin/AdminWhatsApp.vue') },
         { path: 'instagram', name: 'admin-instagram', component: () => import('../admin/AdminInstagram.vue') },
         { path: 'instagram/dms', name: 'admin-instagram-dms', component: () => import('../admin/AdminInstagramInbox.vue') },
+        { path: 'facebook/dms', name: 'admin-facebook-dms', component: () => import('../admin/AdminFacebookInbox.vue') },
         { path: 'analytics', name: 'admin-analytics', component: () => import('../admin/AdminAnalytics.vue') },
       ],
     },

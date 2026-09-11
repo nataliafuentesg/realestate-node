@@ -6,6 +6,7 @@ import {
   Building2,
   ClipboardList,
   MessageCircle,
+  MessageSquare,
   Camera,
   Send,
   BarChart3,
@@ -23,10 +24,11 @@ import { isPushSupported, getPushState, enablePush, disablePush } from './push'
 const router = useRouter()
 const route = useRoute()
 const { logout } = useAdminAuth()
-const { whatsappConversations, instagramConversations } = useUnreadCounts()
+const { whatsappConversations, instagramConversations, facebookConversations } = useUnreadCounts()
 
 const waUnread = computed(() => countUnread(whatsappConversations.value))
 const igUnread = computed(() => countUnread(instagramConversations.value))
+const fbUnread = computed(() => countUnread(facebookConversations.value))
 
 function handleLogout() {
   logout()
@@ -91,6 +93,7 @@ const navGroups = computed(() => [
       { to: '/admin/whatsapp', label: 'WhatsApp', icon: MessageCircle, badge: waUnread.value },
       { to: '/admin/instagram', label: 'Instagram', icon: Camera },
       { to: '/admin/instagram/dms', label: 'IG DMs', icon: Send, badge: igUnread.value },
+      { to: '/admin/facebook/dms', label: 'Facebook', icon: MessageSquare, badge: fbUnread.value },
       { to: '/admin/analytics', label: 'Analítica', icon: BarChart3 },
     ],
   },
@@ -115,10 +118,10 @@ const navGroups = computed(() => [
       >
         <Menu :size="20" :stroke-width="1.75" />
         <span
-          v-if="waUnread + igUnread > 0"
+          v-if="waUnread + igUnread + fbUnread > 0"
           class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-mp-primary text-[9px] font-medium text-white"
         >
-          {{ waUnread + igUnread }}
+          {{ waUnread + igUnread + fbUnread }}
         </span>
       </button>
     </header>

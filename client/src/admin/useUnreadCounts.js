@@ -12,17 +12,20 @@ import api from '../api/axios'
 // deja de contar como pendiente sola.
 const whatsappConversations = ref([])
 const instagramConversations = ref([])
+const facebookConversations = ref([])
 let started = false
 let pollTimer = null
 
 async function refresh() {
   try {
-    const [waRes, igRes] = await Promise.all([
+    const [waRes, igRes, fbRes] = await Promise.all([
       api.get('/whatsapp/conversations'),
       api.get('/instagram/conversations'),
+      api.get('/facebook/conversations'),
     ])
     whatsappConversations.value = waRes.data ?? []
     instagramConversations.value = igRes.data ?? []
+    facebookConversations.value = fbRes.data ?? []
   } catch (err) {
     // silencioso -- esto es solo para el contador del menu, no es critico
   }
@@ -35,7 +38,7 @@ export function useUnreadCounts() {
     pollTimer = setInterval(refresh, 15000)
   }
 
-  return { whatsappConversations, instagramConversations, refresh }
+  return { whatsappConversations, instagramConversations, facebookConversations, refresh }
 }
 
 export function countUnread(conversations) {
