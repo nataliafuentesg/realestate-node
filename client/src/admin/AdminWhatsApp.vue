@@ -122,6 +122,9 @@ onBeforeUnmount(() => {
               {{ c.contactName || formatPhone(c.waId) }}
             </p>
             <p v-if="c.contactName" class="text-xs text-mp-muted/60">{{ formatPhone(c.waId) }}</p>
+            <p v-if="c.adReferralHeadline" class="mt-0.5 truncate text-[10px] text-mp-primary-hover">
+              📣 {{ c.adReferralHeadline }}
+            </p>
             <p class="mt-1 truncate text-xs" :class="isUnread(c) ? 'text-mp-fg/80' : 'text-mp-muted'">
               {{ c.lastDirection === 'OUTBOUND' ? 'Tú: ' : '' }}{{ c.lastMessage }}
             </p>
