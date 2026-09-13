@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
           class="group relative flex w-full items-start gap-2 border-b border-mp-border/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
           :class="selectedWaId === c.waId ? 'bg-mp-primary/10' : ''"
         >
-          <button class="flex flex-1 items-start gap-2 text-left" @click="selectConversation(c.waId)">
+          <button class="flex min-w-0 flex-1 items-start gap-2 text-left" @click="selectConversation(c.waId)">
             <span
               class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
               :class="isUnread(c) ? 'bg-mp-primary' : 'bg-transparent'"
