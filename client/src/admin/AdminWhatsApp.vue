@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -27,6 +27,20 @@ function formatTime(value) {
 
 function isUnread(c) {
   return c.lastDirection === 'INBOUND'
+}
+
+// Mismo lenguaje visual que WhatsApp: un check (enviado), doble check gris
+// (entregado), doble check azul (leido). "read" solo llega si la persona
+// tiene los recibos de lectura activados -- si no, se queda en "delivered".
+const STATUS_ICONS = {
+  sent: { icon: Check, class: 'text-white/60' },
+  delivered: { icon: CheckCheck, class: 'text-white/60' },
+  read: { icon: CheckCheck, class: 'text-sky-300' },
+  failed: { icon: AlertCircle, class: 'text-red-300' },
+}
+
+function statusIcon(status) {
+  return STATUS_ICONS[status] ?? { icon: Clock, class: 'text-white/40' }
 }
 
 const selectedConversation = computed(() => conversations.value.find((c) => c.waId === selectedWaId.value))
@@ -174,10 +188,17 @@ onBeforeUnmount(() => {
               >
                 {{ m.body }}
                 <p
-                  class="mt-1 text-[10px]"
+                  class="mt-1 flex items-center gap-1 text-[10px]"
                   :class="m.direction === 'OUTBOUND' ? 'text-white/70' : 'text-mp-muted'"
                 >
                   {{ formatTime(m.createdAt) }}
+                  <component
+                    v-if="m.direction === 'OUTBOUND'"
+                    :is="statusIcon(m.status).icon"
+                    :size="12"
+                    :stroke-width="2"
+                    :class="statusIcon(m.status).class"
+                  />
                 </p>
               </div>
             </div>
