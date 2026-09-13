@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -75,6 +75,20 @@ function scrollToBottom() {
   if (threadRef.value) threadRef.value.scrollTop = threadRef.value.scrollHeight
 }
 
+async function togglePin(c) {
+  try {
+    if (c.pinned) {
+      await api.delete(`/whatsapp/conversations/${c.waId}/pin`)
+    } else {
+      await api.put(`/whatsapp/conversations/${c.waId}/pin`)
+    }
+    c.pinned = !c.pinned
+    await loadConversations()
+  } catch (err) {
+    error.value = 'No se pudo actualizar el pin.'
+  }
+}
+
 async function sendReply() {
   if (!replyText.value.trim() || !selectedWaId.value) return
   sending.value = true
@@ -120,31 +134,41 @@ onBeforeUnmount(() => {
         <p v-else-if="conversations.length === 0" class="p-5 text-sm text-mp-muted">
           Todavía no hay conversaciones.
         </p>
-        <button
+        <div
           v-for="c in conversations"
           :key="c.waId"
-          @click="selectConversation(c.waId)"
-          class="flex w-full items-start gap-2 border-b border-mp-border/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
+          class="group relative flex w-full items-start gap-2 border-b border-mp-border/5 px-4 py-3 text-left transition-colors last:border-0 hover:bg-white/5"
           :class="selectedWaId === c.waId ? 'bg-mp-primary/10' : ''"
         >
-          <span
-            class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-            :class="isUnread(c) ? 'bg-mp-primary' : 'bg-transparent'"
-          ></span>
-          <span class="min-w-0 flex-1">
-            <p class="truncate text-sm" :class="isUnread(c) ? 'font-semibold text-mp-fg' : 'font-medium text-mp-fg'">
-              {{ c.contactName || formatPhone(c.waId) }}
-            </p>
-            <p v-if="c.contactName" class="text-xs text-mp-muted/60">{{ formatPhone(c.waId) }}</p>
-            <p v-if="c.adReferralHeadline" class="mt-0.5 truncate text-[10px] text-mp-primary-hover">
-              📣 {{ c.adReferralHeadline }}
-            </p>
-            <p class="mt-1 truncate text-xs" :class="isUnread(c) ? 'text-mp-fg/80' : 'text-mp-muted'">
-              {{ c.lastDirection === 'OUTBOUND' ? 'Tú: ' : '' }}{{ c.lastMessage }}
-            </p>
-            <p class="mt-1 text-[10px] text-mp-muted/50">{{ formatTime(c.lastMessageAt) }}</p>
-          </span>
-        </button>
+          <button class="flex flex-1 items-start gap-2 text-left" @click="selectConversation(c.waId)">
+            <span
+              class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+              :class="isUnread(c) ? 'bg-mp-primary' : 'bg-transparent'"
+            ></span>
+            <span class="min-w-0 flex-1">
+              <p class="truncate text-sm" :class="isUnread(c) ? 'font-semibold text-mp-fg' : 'font-medium text-mp-fg'">
+                {{ c.contactName || formatPhone(c.waId) }}
+              </p>
+              <p v-if="c.contactName" class="text-xs text-mp-muted/60">{{ formatPhone(c.waId) }}</p>
+              <p v-if="c.adReferralHeadline" class="mt-0.5 truncate text-[10px] text-mp-primary-hover">
+                📣 {{ c.adReferralHeadline }}
+              </p>
+              <p class="mt-1 truncate text-xs" :class="isUnread(c) ? 'text-mp-fg/80' : 'text-mp-muted'">
+                {{ c.lastDirection === 'OUTBOUND' ? 'Tú: ' : '' }}{{ c.lastMessage }}
+              </p>
+              <p class="mt-1 text-[10px] text-mp-muted/50">{{ formatTime(c.lastMessageAt) }}</p>
+            </span>
+          </button>
+          <button
+            type="button"
+            title="Marcar como cliente potencial"
+            @click="togglePin(c)"
+            class="shrink-0 rounded-lg p-1 transition-colors"
+            :class="c.pinned ? 'text-mp-primary' : 'text-mp-muted/30 opacity-0 group-hover:opacity-100 hover:text-mp-muted'"
+          >
+            <Pin :size="15" :stroke-width="2" :fill="c.pinned ? 'currentColor' : 'none'" />
+          </button>
+        </div>
       </div>
 
       <!-- Hilo del chat: en movil ocupa toda la pantalla solo cuando hay uno seleccionado -->
