@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2 } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -150,6 +150,18 @@ async function togglePin(c) {
   }
 }
 
+async function deleteConversation(c) {
+  const label = c.contactName || formatPhone(c.waId)
+  if (!confirm(`¿Borrar toda la conversación con ${label}? Esto no se puede deshacer.`)) return
+  try {
+    await api.delete(`/whatsapp/conversations/${c.waId}`)
+    if (selectedWaId.value === c.waId) selectedWaId.value = null
+    await loadConversations()
+  } catch (err) {
+    error.value = 'No se pudo borrar la conversación.'
+  }
+}
+
 async function sendReply() {
   if (!replyText.value.trim() || !selectedWaId.value) return
   sending.value = true
@@ -194,8 +206,8 @@ onBeforeUnmount(() => {
     <div class="mt-4 flex min-h-0 flex-1 gap-6 lg:mt-6">
       <!-- Lista de conversaciones: en movil ocupa toda la pantalla y se oculta al abrir un chat -->
       <div
-        class="flex w-full shrink-0 flex-col overflow-hidden rounded-xl border border-mp-border/10 bg-mp-surface lg:block lg:max-w-xs"
-        :class="selectedWaId ? 'hidden' : 'block'"
+        class="w-full shrink-0 flex-col overflow-hidden rounded-xl border border-mp-border/10 bg-mp-surface lg:flex lg:max-w-xs"
+        :class="selectedWaId ? 'hidden' : 'flex'"
       >
         <div class="border-b border-mp-border/10 p-3">
           <div class="relative">
@@ -245,15 +257,25 @@ onBeforeUnmount(() => {
                 <p class="mt-1 text-[10px] text-mp-muted/50">{{ formatTime(c.lastMessageAt) }}</p>
               </span>
             </button>
-            <button
-              type="button"
-              title="Marcar como cliente potencial"
-              @click="togglePin(c)"
-              class="shrink-0 rounded-lg p-1 transition-colors"
-              :class="c.pinned ? 'text-mp-primary' : 'text-mp-muted/30 opacity-0 group-hover:opacity-100 hover:text-mp-muted'"
-            >
-              <Pin :size="15" :stroke-width="2" :fill="c.pinned ? 'currentColor' : 'none'" />
-            </button>
+            <div class="flex shrink-0 flex-col items-center gap-1">
+              <button
+                type="button"
+                title="Marcar como cliente potencial"
+                @click="togglePin(c)"
+                class="rounded-lg p-1 transition-colors"
+                :class="c.pinned ? 'text-mp-primary' : 'text-mp-muted/30 opacity-0 group-hover:opacity-100 hover:text-mp-muted'"
+              >
+                <Pin :size="15" :stroke-width="2" :fill="c.pinned ? 'currentColor' : 'none'" />
+              </button>
+              <button
+                type="button"
+                title="Borrar conversación"
+                @click="deleteConversation(c)"
+                class="rounded-lg p-1 text-mp-muted/30 opacity-0 transition-colors hover:text-red-400 group-hover:opacity-100"
+              >
+                <Trash2 :size="15" :stroke-width="2" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
