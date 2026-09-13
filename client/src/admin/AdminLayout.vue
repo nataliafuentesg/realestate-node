@@ -16,6 +16,8 @@ import {
   Bell,
   BellOff,
   BellDot,
+  ChevronsLeft,
+  ChevronsRight,
 } from '@lucide/vue'
 import { useAdminAuth } from './auth'
 import { useUnreadCounts, countUnread } from './useUnreadCounts'
@@ -73,6 +75,13 @@ async function togglePush() {
 const mobileMenuOpen = ref(false)
 watch(() => route.fullPath, () => {
   mobileMenuOpen.value = false
+})
+
+// Colapsar a solo iconos para dar mas espacio a paneles como el de
+// WhatsApp -- se recuerda entre sesiones.
+const collapsed = ref(localStorage.getItem('mp-sidebar-collapsed') === '1')
+watch(collapsed, (value) => {
+  localStorage.setItem('mp-sidebar-collapsed', value ? '1' : '0')
 })
 
 const navGroups = computed(() => [
@@ -135,18 +144,18 @@ const navGroups = computed(() => [
     ></div>
 
     <aside
-      class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col justify-between border-r border-mp-border/10 bg-mp-surface px-5 py-8 transition-transform duration-200 lg:static lg:z-auto lg:w-64 lg:shrink-0 lg:translate-x-0 lg:bg-mp-surface/60 lg:backdrop-blur"
-      :class="mobileMenuOpen ? 'translate-x-0' : ''"
+      class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col justify-between border-r border-mp-border/10 bg-mp-surface px-5 py-8 transition-[transform,width] duration-200 lg:static lg:z-auto lg:shrink-0 lg:translate-x-0 lg:bg-mp-surface/60 lg:backdrop-blur"
+      :class="[mobileMenuOpen ? 'translate-x-0' : '', collapsed ? 'lg:w-20 lg:px-3' : 'lg:w-64']"
     >
       <div>
-        <div class="flex items-center justify-between px-1">
+        <div class="flex items-center justify-between px-1" :class="collapsed ? 'lg:justify-center lg:px-0' : ''">
           <div class="flex items-center gap-2.5">
             <span
               class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-mp-primary font-[family-name:var(--font-mp-heading)] text-sm font-bold text-white"
             >
               M
             </span>
-            <div>
+            <div v-if="!collapsed" class="lg:block">
               <p class="font-[family-name:var(--font-mp-heading)] text-base font-medium leading-tight text-mp-fg">
                 Marca<span class="text-mp-primary-hover">pro</span>
               </p>
@@ -166,7 +175,7 @@ const navGroups = computed(() => [
         <nav class="mt-10 flex flex-col gap-5 font-[family-name:var(--font-mp-body)] text-sm">
           <div v-for="(group, i) in navGroups" :key="i">
             <p
-              v-if="group.label"
+              v-if="group.label && !collapsed"
               class="mb-1.5 px-4 text-[10px] font-medium tracking-widest text-mp-muted/60"
             >
               {{ group.label.toUpperCase() }}
@@ -176,17 +185,23 @@ const navGroups = computed(() => [
                 v-for="item in group.items"
                 :key="item.to"
                 :to="item.to"
-                class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
+                :title="collapsed ? item.label : null"
+                class="relative flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
+                :class="collapsed ? 'lg:justify-center lg:px-0' : ''"
                 active-class="!bg-mp-primary/15 !text-mp-primary-hover"
               >
                 <component :is="item.icon" :size="16" :stroke-width="1.75" class="shrink-0" />
-                <span class="flex-1">{{ item.label }}</span>
+                <span v-if="!collapsed" class="flex-1">{{ item.label }}</span>
                 <span
-                  v-if="item.badge"
+                  v-if="item.badge && !collapsed"
                   class="flex h-5 min-w-5 items-center justify-center rounded-full bg-mp-primary px-1.5 text-[10px] font-medium text-white"
                 >
                   {{ item.badge }}
                 </span>
+                <span
+                  v-else-if="item.badge && collapsed"
+                  class="absolute right-1 top-1.5 h-2 w-2 rounded-full bg-mp-primary lg:block hidden"
+                ></span>
               </RouterLink>
             </div>
           </div>
@@ -198,13 +213,14 @@ const navGroups = computed(() => [
           v-if="pushState !== 'unsupported'"
           @click="togglePush"
           :disabled="pushBusy || pushState === 'denied'"
+          :title="collapsed ? 'Notificaciones' : null"
           class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/5 disabled:opacity-50"
-          :class="pushState === 'subscribed' ? 'text-mp-primary-hover' : 'text-mp-muted hover:text-mp-fg'"
+          :class="[pushState === 'subscribed' ? 'text-mp-primary-hover' : 'text-mp-muted hover:text-mp-fg', collapsed ? 'lg:justify-center lg:px-0' : '']"
         >
           <BellDot v-if="pushState === 'subscribed'" :size="16" :stroke-width="1.75" />
           <BellOff v-else-if="pushState === 'denied'" :size="16" :stroke-width="1.75" />
           <Bell v-else :size="16" :stroke-width="1.75" />
-          <span class="flex-1">
+          <span v-if="!collapsed" class="flex-1">
             {{
               pushState === 'subscribed'
                 ? 'Notificaciones activas'
@@ -216,14 +232,27 @@ const navGroups = computed(() => [
             }}
           </span>
         </button>
-        <p v-if="pushError" class="px-4 text-xs text-red-400">{{ pushError }}</p>
+        <p v-if="pushError && !collapsed" class="px-4 text-xs text-red-400">{{ pushError }}</p>
 
         <button
           @click="handleLogout"
+          :title="collapsed ? 'Cerrar sesión' : null"
           class="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-left text-sm text-mp-muted transition-colors hover:bg-white/5 hover:text-mp-fg"
+          :class="collapsed ? 'lg:justify-center lg:px-0' : ''"
         >
           <LogOut :size="16" :stroke-width="1.75" />
-          Cerrar sesión
+          <span v-if="!collapsed">Cerrar sesión</span>
+        </button>
+
+        <button
+          @click="collapsed = !collapsed"
+          class="hidden items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs text-mp-muted/60 transition-colors hover:bg-white/5 hover:text-mp-fg lg:flex"
+        >
+          <ChevronsRight v-if="collapsed" :size="15" :stroke-width="1.75" />
+          <template v-else>
+            <ChevronsLeft :size="15" :stroke-width="1.75" />
+            <span>Colapsar</span>
+          </template>
         </button>
       </div>
     </aside>
