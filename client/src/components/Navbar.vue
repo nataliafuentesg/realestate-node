@@ -1,13 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useContactModal } from '../composables/useContactModal'
 
 defineProps({
   solid: { type: Boolean, default: false },
 })
-
-const { openContactModal } = useContactModal()
 
 const scrolled = ref(false)
 const mobileOpen = ref(false)
@@ -20,11 +17,6 @@ window.addEventListener('scroll', handleScroll)
 
 function closeMobile() {
   mobileOpen.value = false
-}
-
-function handleAgendar() {
-  closeMobile()
-  openContactModal()
 }
 </script>
 
@@ -44,13 +36,15 @@ function handleAgendar() {
         <li><a href="/#contact" class="transition-colors hover:text-gold-light">CONTACTO</a></li>
       </ul>
 
-      <button
+      <a
+        href="https://wa.me/573112210714"
+        target="_blank"
+        rel="noopener noreferrer"
         data-cursor-hover
         class="hidden rounded-full border border-gold-light/60 px-6 py-2 font-sans text-xs tracking-widest text-cream/80 md:inline-block"
-        @click="openContactModal()"
       >
-        AGENDAR VISITA
-      </button>
+        ESCRÍBENOS POR WHATSAPP
+      </a>
 
       <button
         data-cursor-hover
@@ -81,12 +75,15 @@ function handleAgendar() {
           <a href="/#contact" class="block py-3" @click="closeMobile">CONTACTO</a>
         </li>
         <li>
-          <button
-            class="mt-2 w-full rounded-full border border-gold-light/60 px-6 py-3 text-center text-xs text-cream/80"
-            @click="handleAgendar"
+          <a
+            href="https://wa.me/573112210714"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-2 block w-full rounded-full border border-gold-light/60 px-6 py-3 text-center text-xs text-cream/80"
+            @click="closeMobile"
           >
-            AGENDAR VISITA
-          </button>
+            ESCRÍBENOS POR WHATSAPP
+          </a>
         </li>
       </ul>
     </div>
