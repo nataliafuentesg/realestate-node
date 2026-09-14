@@ -15,6 +15,14 @@ const search = ref('')
 const takeoverBusy = ref(false)
 
 const threadRef = ref(null)
+const replyRef = ref(null)
+
+function autoGrow() {
+  const el = replyRef.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${el.scrollHeight}px`
+}
 let pollTimer = null
 const now = ref(Date.now())
 let clockTimer = null
@@ -168,6 +176,8 @@ async function sendReply() {
   try {
     await api.post(`/whatsapp/conversations/${selectedWaId.value}/reply`, { body: replyText.value })
     replyText.value = ''
+    await nextTick()
+    autoGrow()
     if (selectedConversation.value) selectedConversation.value.humanHandling = true
     await selectConversation(selectedWaId.value)
     await loadConversations()
@@ -358,17 +368,20 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <form @submit.prevent="sendReply" class="flex gap-2 border-t border-mp-border/10 p-3 lg:p-4">
-            <input
+          <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-3 lg:p-4">
+            <textarea
+              ref="replyRef"
               v-model="replyText"
-              type="text"
-              placeholder="Escribe una respuesta..."
-              class="flex-1 rounded-full border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
-            />
+              rows="1"
+              placeholder="Escribe una respuesta... (Shift+Enter para salto de línea)"
+              class="max-h-32 flex-1 resize-none overflow-y-auto rounded-2xl border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
+              @input="autoGrow"
+              @keydown.enter.exact.prevent="sendReply"
+            ></textarea>
             <button
               type="submit"
               :disabled="sending || !replyText.trim()"
-              class="rounded-full bg-mp-primary px-6 py-2.5 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
+              class="shrink-0 rounded-full bg-mp-primary px-6 py-2.5 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
             >
               {{ sending ? '...' : 'ENVIAR' }}
             </button>
