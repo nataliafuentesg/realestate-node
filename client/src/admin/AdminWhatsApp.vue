@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2 } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -13,9 +13,12 @@ const sending = ref(false)
 const error = ref('')
 const search = ref('')
 const takeoverBusy = ref(false)
+const attaching = ref(false)
+const attachError = ref('')
 
 const threadRef = ref(null)
 const replyRef = ref(null)
+const fileInputRef = ref(null)
 
 function autoGrow() {
   const el = replyRef.value
@@ -185,6 +188,43 @@ async function sendReply() {
     error.value = 'No se pudo enviar el mensaje.'
   } finally {
     sending.value = false
+  }
+}
+
+function mediaTypeFor(file) {
+  if (file.type.startsWith('image/')) return 'image'
+  if (file.type.startsWith('video/')) return 'video'
+  return 'document'
+}
+
+async function handleAttach(event) {
+  const file = event.target.files?.[0]
+  if (!file || !selectedWaId.value) return
+  attachError.value = ''
+  attaching.value = true
+  try {
+    const data = new FormData()
+    data.append('file', file)
+    const uploadRes = await api.post('/uploads', data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    await api.post(`/whatsapp/conversations/${selectedWaId.value}/media`, {
+      mediaUrl: uploadRes.data.url,
+      mediaType: mediaTypeFor(file),
+      filename: file.name,
+      caption: replyText.value.trim() || undefined,
+    })
+    replyText.value = ''
+    await nextTick()
+    autoGrow()
+    if (selectedConversation.value) selectedConversation.value.humanHandling = true
+    await selectConversation(selectedWaId.value)
+    await loadConversations()
+  } catch (err) {
+    attachError.value = 'No se pudo enviar el archivo. Revisa que sea una imagen, video o documento permitido.'
+  } finally {
+    attaching.value = false
+    event.target.value = ''
   }
 }
 
@@ -369,6 +409,22 @@ onBeforeUnmount(() => {
           </div>
 
           <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-3 lg:p-4">
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/3gpp,application/pdf,.doc,.docx,.xls,.xlsx"
+              class="hidden"
+              @change="handleAttach"
+            />
+            <button
+              type="button"
+              :disabled="attaching"
+              title="Adjuntar imagen, video o documento"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-mp-border/15 text-mp-muted hover:border-mp-primary hover:text-mp-primary disabled:opacity-50"
+              @click="fileInputRef?.click()"
+            >
+              <Paperclip :size="18" :stroke-width="2" />
+            </button>
             <textarea
               ref="replyRef"
               v-model="replyText"
@@ -386,6 +442,8 @@ onBeforeUnmount(() => {
               {{ sending ? '...' : 'ENVIAR' }}
             </button>
           </form>
+          <p v-if="attaching" class="px-4 pb-1 text-[11px] text-mp-muted/60">Enviando archivo...</p>
+          <p v-if="attachError" class="px-4 pb-1 text-[11px] text-red-400">{{ attachError }}</p>
           <p
             class="flex items-center gap-1.5 px-4 pb-3 text-[11px]"
             :class="!windowInfo.open ? 'text-red-400' : windowInfo.urgent ? 'text-amber-400' : 'text-mp-muted/60'"
