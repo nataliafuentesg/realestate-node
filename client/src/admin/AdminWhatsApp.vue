@@ -15,6 +15,7 @@ const search = ref('')
 const takeoverBusy = ref(false)
 const attaching = ref(false)
 const attachError = ref('')
+const attachProgress = ref('')
 
 const threadRef = ref(null)
 const replyRef = ref(null)
@@ -198,22 +199,31 @@ function mediaTypeFor(file) {
 }
 
 async function handleAttach(event) {
-  const file = event.target.files?.[0]
-  if (!file || !selectedWaId.value) return
+  const files = Array.from(event.target.files || [])
+  if (files.length === 0 || !selectedWaId.value) return
   attachError.value = ''
   attaching.value = true
+  const caption = replyText.value.trim()
   try {
-    const data = new FormData()
-    data.append('file', file)
-    const uploadRes = await api.post('/uploads', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    await api.post(`/whatsapp/conversations/${selectedWaId.value}/media`, {
-      mediaUrl: uploadRes.data.url,
-      mediaType: mediaTypeFor(file),
-      filename: file.name,
-      caption: replyText.value.trim() || undefined,
-    })
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      attachProgress.value = files.length > 1 ? `Enviando ${i + 1} de ${files.length}...` : 'Enviando archivo...'
+      const data = new FormData()
+      data.append('file', file)
+      const uploadRes = await api.post('/uploads', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      // WhatsApp no agrupa varias fotos en un solo mensaje -- salen como
+      // burbujas separadas, igual que si las mandaras a mano desde el
+      // celular. El texto escrito solo va de caption en la primera, para
+      // no repetirlo en cada foto.
+      await api.post(`/whatsapp/conversations/${selectedWaId.value}/media`, {
+        mediaUrl: uploadRes.data.url,
+        mediaType: mediaTypeFor(file),
+        filename: file.name,
+        caption: i === 0 ? (caption || undefined) : undefined,
+      })
+    }
     replyText.value = ''
     await nextTick()
     autoGrow()
@@ -221,9 +231,10 @@ async function handleAttach(event) {
     await selectConversation(selectedWaId.value)
     await loadConversations()
   } catch (err) {
-    attachError.value = 'No se pudo enviar el archivo. Revisa que sea una imagen, video o documento permitido.'
+    attachError.value = 'No se pudo enviar uno de los archivos. Revisa que sean imágenes, video o documentos permitidos.'
   } finally {
     attaching.value = false
+    attachProgress.value = ''
     event.target.value = ''
   }
 }
@@ -412,6 +423,7 @@ onBeforeUnmount(() => {
             <input
               ref="fileInputRef"
               type="file"
+              multiple
               accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/3gpp,application/pdf,.doc,.docx,.xls,.xlsx"
               class="hidden"
               @change="handleAttach"
@@ -442,7 +454,7 @@ onBeforeUnmount(() => {
               {{ sending ? '...' : 'ENVIAR' }}
             </button>
           </form>
-          <p v-if="attaching" class="px-4 pb-1 text-[11px] text-mp-muted/60">Enviando archivo...</p>
+          <p v-if="attaching" class="px-4 pb-1 text-[11px] text-mp-muted/60">{{ attachProgress }}</p>
           <p v-if="attachError" class="px-4 pb-1 text-[11px] text-red-400">{{ attachError }}</p>
           <p
             class="flex items-center gap-1.5 px-4 pb-3 text-[11px]"
