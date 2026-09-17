@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -13,9 +13,9 @@ const sending = ref(false)
 const error = ref('')
 const search = ref('')
 const takeoverBusy = ref(false)
-const attaching = ref(false)
 const attachError = ref('')
 const attachProgress = ref('')
+const pendingFiles = ref([])
 
 const threadRef = ref(null)
 const replyRef = ref(null)
@@ -175,7 +175,12 @@ async function deleteConversation(c) {
 }
 
 async function sendReply() {
-  if (!replyText.value.trim() || !selectedWaId.value) return
+  if (!selectedWaId.value) return
+  if (pendingFiles.value.length > 0) {
+    await sendPendingFiles()
+    return
+  }
+  if (!replyText.value.trim()) return
   sending.value = true
   try {
     await api.post(`/whatsapp/conversations/${selectedWaId.value}/reply`, { body: replyText.value })
@@ -198,15 +203,42 @@ function mediaTypeFor(file) {
   return 'document'
 }
 
-async function handleAttach(event) {
+/** Solo agrega los archivos a la vista previa -- el envío real pasa por
+ * sendReply(), para que el usuario pueda revisar/quitar antes de mandar. */
+function handleAttach(event) {
   const files = Array.from(event.target.files || [])
-  if (files.length === 0 || !selectedWaId.value) return
+  event.target.value = ''
+  for (const file of files) {
+    const type = mediaTypeFor(file)
+    pendingFiles.value.push({
+      file,
+      type,
+      previewUrl: type === 'image' ? URL.createObjectURL(file) : null,
+    })
+  }
+  nextTick(() => replyRef.value?.focus())
+}
+
+function removePendingFile(index) {
+  const [removed] = pendingFiles.value.splice(index, 1)
+  if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl)
+}
+
+function clearPendingFiles() {
+  for (const p of pendingFiles.value) {
+    if (p.previewUrl) URL.revokeObjectURL(p.previewUrl)
+  }
+  pendingFiles.value = []
+}
+
+async function sendPendingFiles() {
   attachError.value = ''
-  attaching.value = true
+  sending.value = true
   const caption = replyText.value.trim()
+  const files = pendingFiles.value
   try {
     for (let i = 0; i < files.length; i++) {
-      const file = files[i]
+      const { file } = files[i]
       attachProgress.value = files.length > 1 ? `Enviando ${i + 1} de ${files.length}...` : 'Enviando archivo...'
       const data = new FormData()
       data.append('file', file)
@@ -224,6 +256,7 @@ async function handleAttach(event) {
         caption: i === 0 ? (caption || undefined) : undefined,
       })
     }
+    clearPendingFiles()
     replyText.value = ''
     await nextTick()
     autoGrow()
@@ -233,9 +266,8 @@ async function handleAttach(event) {
   } catch (err) {
     attachError.value = 'No se pudo enviar uno de los archivos. Revisa que sean imágenes, video o documentos permitidos.'
   } finally {
-    attaching.value = false
+    sending.value = false
     attachProgress.value = ''
-    event.target.value = ''
   }
 }
 
@@ -419,7 +451,33 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-3 lg:p-4">
+          <div v-if="pendingFiles.length" class="flex gap-2 overflow-x-auto border-t border-mp-border/10 px-3 pt-3 lg:px-4">
+            <div v-for="(p, idx) in pendingFiles" :key="idx" class="relative shrink-0">
+              <img
+                v-if="p.type === 'image'"
+                :src="p.previewUrl"
+                class="h-16 w-16 rounded-lg border border-mp-border/15 object-cover"
+              />
+              <div
+                v-else
+                class="flex h-16 w-16 flex-col items-center justify-center gap-1 rounded-lg border border-mp-border/15 bg-mp-bg px-1 text-center"
+              >
+                <component :is="p.type === 'video' ? Video : FileText" :size="18" :stroke-width="1.5" class="text-mp-muted" />
+                <span class="w-full truncate text-[9px] text-mp-muted">{{ p.file.name }}</span>
+              </div>
+              <button
+                type="button"
+                :disabled="sending"
+                title="Quitar"
+                class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-mp-primary text-white disabled:opacity-50"
+                @click="removePendingFile(idx)"
+              >
+                <X :size="12" :stroke-width="2.5" />
+              </button>
+            </div>
+          </div>
+
+          <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-3 lg:p-4" :class="{ 'border-t-0': pendingFiles.length }">
             <input
               ref="fileInputRef"
               type="file"
@@ -430,7 +488,7 @@ onBeforeUnmount(() => {
             />
             <button
               type="button"
-              :disabled="attaching"
+              :disabled="sending"
               title="Adjuntar imagen, video o documento"
               class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-mp-border/15 text-mp-muted hover:border-mp-primary hover:text-mp-primary disabled:opacity-50"
               @click="fileInputRef?.click()"
@@ -441,20 +499,20 @@ onBeforeUnmount(() => {
               ref="replyRef"
               v-model="replyText"
               rows="1"
-              placeholder="Escribe una respuesta... (Shift+Enter para salto de línea)"
+              :placeholder="pendingFiles.length ? 'Añade un mensaje (opcional)...' : 'Escribe una respuesta... (Shift+Enter para salto de línea)'"
               class="max-h-32 flex-1 resize-none overflow-y-auto rounded-2xl border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
               @input="autoGrow"
               @keydown.enter.exact.prevent="sendReply"
             ></textarea>
             <button
               type="submit"
-              :disabled="sending || !replyText.trim()"
+              :disabled="sending || (!replyText.trim() && pendingFiles.length === 0)"
               class="shrink-0 rounded-full bg-mp-primary px-6 py-2.5 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
             >
               {{ sending ? '...' : 'ENVIAR' }}
             </button>
           </form>
-          <p v-if="attaching" class="px-4 pb-1 text-[11px] text-mp-muted/60">{{ attachProgress }}</p>
+          <p v-if="attachProgress" class="px-4 pb-1 text-[11px] text-mp-muted/60">{{ attachProgress }}</p>
           <p v-if="attachError" class="px-4 pb-1 text-[11px] text-red-400">{{ attachError }}</p>
           <p
             class="flex items-center gap-1.5 px-4 pb-3 text-[11px]"
