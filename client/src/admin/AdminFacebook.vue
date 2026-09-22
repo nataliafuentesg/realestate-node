@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api/axios'
+import ConnectedAccountBadge from './ConnectedAccountBadge.vue'
 
 const posts = ref([])
 const postReplies = ref({}) // postId -> reply config
@@ -88,6 +89,7 @@ onMounted(load)
 
 <template>
   <div class="font-[family-name:var(--font-mp-body)]">
+    <ConnectedAccountBadge platform="facebook" />
     <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">📘 Respuestas por publicación</h1>
     <p class="mt-1 max-w-xl text-sm text-mp-muted">
       Cuando alguien comenta "info" en una publicación de Facebook, elige qué le llega por

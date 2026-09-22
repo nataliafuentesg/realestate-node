@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { ArrowLeft } from '@lucide/vue'
 import api from '../api/axios'
+import ConnectedAccountBadge from './ConnectedAccountBadge.vue'
 
 const conversations = ref([])
 const loadingConversations = ref(true)
@@ -87,6 +88,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex h-[calc(100vh-6.5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
+    <ConnectedAccountBadge platform="instagram" />
     <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">📸 Instagram DMs</h1>
     <p v-if="error" class="mt-2 text-sm text-red-400">{{ error }}</p>
 
