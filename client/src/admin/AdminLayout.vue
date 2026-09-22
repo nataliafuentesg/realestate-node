@@ -10,6 +10,7 @@ import {
   Camera,
   Send,
   BarChart3,
+  CircleDollarSign,
   LogOut,
   Menu,
   X,
@@ -106,6 +107,10 @@ const navGroups = computed(() => [
       { to: '/admin/facebook/dms', label: 'FB DMs', icon: Send, badge: fbUnread.value },
       { to: '/admin/analytics', label: 'Analítica', icon: BarChart3 },
     ],
+  },
+  {
+    label: 'Finanzas',
+    items: [{ to: '/admin/cobros', label: 'Cobros', icon: CircleDollarSign }],
   },
 ])
 </script>
