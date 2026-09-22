@@ -15,6 +15,7 @@ const emptyForm = () => ({
   amount: null,
   currency: 'COP',
   paymentLink: '',
+  concept: '',
   billingDaysOfMonth: '',
   checkInDaysAfterDue: 3,
   active: true,
@@ -59,6 +60,7 @@ function openEditForm(client) {
     amount: client.amount,
     currency: client.currency,
     paymentLink: client.paymentLink,
+    concept: client.concept,
     billingDaysOfMonth: (client.billingDaysOfMonth || []).join(', '),
     checkInDaysAfterDue: client.checkInDaysAfterDue,
     active: client.active,
@@ -233,6 +235,18 @@ onMounted(loadClients)
                 <option value="USD">USD</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label class="mb-1 block text-xs tracking-widest text-mp-muted">
+              CONCEPTO (ej. "Mantenimiento web" — el mes se agrega solo cada vez que se manda)
+            </label>
+            <input
+              v-model="form.concept"
+              required
+              placeholder="Mantenimiento web"
+              class="w-full rounded-lg border border-mp-border/15 bg-mp-bg px-3 py-2 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
+            />
           </div>
 
           <div>
