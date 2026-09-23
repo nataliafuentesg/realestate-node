@@ -129,14 +129,26 @@ async function loadConversations() {
   }
 }
 
-async function selectConversation(waId) {
+// El polling (cada 8s) llamaba esto igual que abrir un chat nuevo, y
+// scrollToBottom() te sacaba de donde estuvieras leyendo/copiando un
+// mensaje viejo. isPoll=true evita eso: solo baja el scroll solo si ya
+// estabas cerca del final (o si es la primera vez que abres ese chat).
+async function selectConversation(waId, { isPoll = false } = {}) {
+  const isSameConversationRefresh = isPoll && selectedWaId.value === waId
+  const wasNearBottom =
+    !isSameConversationRefresh ||
+    !threadRef.value ||
+    threadRef.value.scrollHeight - threadRef.value.scrollTop - threadRef.value.clientHeight < 100
+
   selectedWaId.value = waId
-  loadingThread.value = true
+  if (!isSameConversationRefresh) loadingThread.value = true
   try {
     const res = await api.get(`/whatsapp/conversations/${waId}`)
     messages.value = res.data
-    await nextTick()
-    scrollToBottom()
+    if (wasNearBottom) {
+      await nextTick()
+      scrollToBottom()
+    }
   } catch (err) {
     error.value = 'No se pudo cargar la conversación.'
   } finally {
@@ -277,7 +289,7 @@ onMounted(() => {
   // no toque recargar la pagina para ver mensajes nuevos.
   pollTimer = setInterval(() => {
     loadConversations()
-    if (selectedWaId.value) selectConversation(selectedWaId.value)
+    if (selectedWaId.value) selectConversation(selectedWaId.value, { isPoll: true })
   }, 8000)
   // Para que el contador de la ventana de 24h avance solo, sin esperar al polling.
   clockTimer = setInterval(() => {
