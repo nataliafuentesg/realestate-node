@@ -10,6 +10,11 @@ const router = createRouter({
       name: 'property-detail',
       component: () => import('../views/PropertyDetail.vue'),
     },
+    {
+      path: '/autorizar-pago/:id',
+      name: 'autorizar-pago',
+      component: () => import('../views/AutorizarPago.vue'),
+    },
     { path: '/admin', name: 'admin-login', component: () => import('../admin/AdminLogin.vue') },
     {
       path: '/admin',

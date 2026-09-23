@@ -8,6 +8,16 @@ const error = ref('')
 const saving = ref(false)
 const saveError = ref('')
 const deletingId = ref(null)
+const copiedId = ref(null)
+
+function copyAuthorizeLink(client) {
+  const link = `${window.location.origin}/autorizar-pago/${client.id}`
+  navigator.clipboard.writeText(link)
+  copiedId.value = client.id
+  setTimeout(() => {
+    if (copiedId.value === client.id) copiedId.value = null
+  }, 2000)
+}
 
 const emptyForm = () => ({
   name: '',
@@ -154,6 +164,7 @@ onMounted(loadClients)
             <th class="px-5 py-3 font-normal">MONTO</th>
             <th class="px-5 py-3 font-normal">DÍAS DE COBRO</th>
             <th class="px-5 py-3 font-normal">ESTADO CICLO ACTUAL</th>
+            <th class="px-5 py-3 font-normal">DÉBITO AUTOMÁTICO</th>
             <th class="px-5 py-3 font-normal"></th>
           </tr>
         </thead>
@@ -172,6 +183,17 @@ onMounted(loadClients)
               <span v-else class="text-xs text-amber-400">
                 Pendiente (recordatorio: {{ client.lastReminderSentDate }})
               </span>
+            </td>
+            <td class="px-5 py-3">
+              <span v-if="client.wompiPaymentSourceId" class="text-xs text-green-400">✓ Autorizado</span>
+              <button
+                v-else-if="client.currency === 'COP'"
+                @click="copyAuthorizeLink(client)"
+                class="text-xs text-mp-primary-hover hover:underline"
+              >
+                {{ copiedId === client.id ? '¡Copiado!' : 'Copiar link para autorizar' }}
+              </button>
+              <span v-else class="text-xs text-mp-muted/50">No disponible (USD)</span>
             </td>
             <td class="px-5 py-3 text-right whitespace-nowrap">
               <button @click="openEditForm(client)" class="mr-4 text-mp-primary-hover hover:underline">Editar</button>
