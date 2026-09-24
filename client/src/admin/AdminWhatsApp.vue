@@ -445,6 +445,17 @@ onBeforeUnmount(() => {
                     : 'rounded-bl-sm bg-white/5 text-mp-fg'
                 "
               >
+                <div
+                  v-if="m.repliedToBody"
+                  class="mb-1.5 rounded-lg border-l-2 px-2 py-1 text-xs opacity-80"
+                  :class="
+                    m.direction === 'OUTBOUND'
+                      ? 'border-white/60 bg-white/10'
+                      : 'border-mp-primary/60 bg-mp-bg'
+                  "
+                >
+                  {{ m.repliedToDirection === 'OUTBOUND' ? 'Tú' : 'Cliente' }}: {{ m.repliedToBody }}
+                </div>
                 {{ m.body }}
                 <p
                   class="mt-1 flex items-center gap-1 text-[10px]"
