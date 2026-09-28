@@ -40,6 +40,7 @@ const router = createRouter({
         { path: 'facebook', name: 'admin-facebook', component: () => import('../admin/AdminFacebook.vue') },
         { path: 'facebook/dms', name: 'admin-facebook-dms', component: () => import('../admin/AdminFacebookInbox.vue') },
         { path: 'analytics', name: 'admin-analytics', component: () => import('../admin/AdminAnalytics.vue') },
+        { path: 'instagram-accounts', name: 'admin-instagram-accounts', component: () => import('../admin/AdminInstagramAccounts.vue') },
         { path: 'cobros', name: 'admin-billing', component: () => import('../admin/AdminBilling.vue') },
       ],
     },

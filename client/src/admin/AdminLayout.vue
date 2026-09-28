@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Camera,
   Send,
+  Users,
   BarChart3,
   CircleDollarSign,
   LogOut,
@@ -106,6 +107,7 @@ const navGroups = computed(() => [
       { to: '/admin/facebook', label: 'Facebook', icon: MessageSquare },
       { to: '/admin/facebook/dms', label: 'FB DMs', icon: Send, badge: fbUnread.value },
       { to: '/admin/analytics', label: 'Analítica', icon: BarChart3 },
+      { to: '/admin/instagram-accounts', label: 'Otros negocios IG', icon: Users },
     ],
   },
   {
