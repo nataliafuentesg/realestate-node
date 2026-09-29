@@ -463,6 +463,30 @@ onBeforeUnmount(() => {
                   preload="none"
                   class="h-9 max-w-[240px]"
                 />
+                <img
+                  v-else-if="m.mediaUrl && m.mediaType?.startsWith('image')"
+                  :src="m.mediaUrl"
+                  class="mb-1.5 max-h-64 max-w-[240px] rounded-lg object-cover"
+                  alt=""
+                />
+                <video
+                  v-else-if="m.mediaUrl && m.mediaType?.startsWith('video')"
+                  :src="m.mediaUrl"
+                  controls
+                  preload="none"
+                  class="mb-1.5 max-h-64 max-w-[240px] rounded-lg"
+                />
+                <a
+                  v-else-if="m.mediaUrl"
+                  :href="m.mediaUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="mb-1.5 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs underline"
+                  :class="m.direction === 'OUTBOUND' ? 'border-white/30' : 'border-mp-border/20'"
+                >
+                  <FileText :size="14" :stroke-width="1.5" />
+                  Ver archivo
+                </a>
                 {{ m.body }}
                 <p
                   class="mt-1 flex items-center gap-1 text-[10px]"
