@@ -456,6 +456,13 @@ onBeforeUnmount(() => {
                 >
                   {{ m.repliedToDirection === 'OUTBOUND' ? 'Tú' : 'Cliente' }}: {{ m.repliedToBody }}
                 </div>
+                <audio
+                  v-if="m.mediaUrl && m.mediaType?.startsWith('audio')"
+                  :src="m.mediaUrl"
+                  controls
+                  preload="none"
+                  class="h-9 max-w-[240px]"
+                />
                 {{ m.body }}
                 <p
                   class="mt-1 flex items-center gap-1 text-[10px]"
