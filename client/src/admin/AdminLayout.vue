@@ -11,7 +11,6 @@ import {
   Send,
   Users,
   BarChart3,
-  CircleDollarSign,
   LogOut,
   Menu,
   X,
@@ -109,10 +108,6 @@ const navGroups = computed(() => [
       { to: '/admin/analytics', label: 'Analítica', icon: BarChart3 },
       { to: '/admin/instagram-accounts', label: 'Otros negocios IG', icon: Users },
     ],
-  },
-  {
-    label: 'Finanzas',
-    items: [{ to: '/admin/cobros', label: 'Cobros', icon: CircleDollarSign }],
   },
 ])
 </script>
