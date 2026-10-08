@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import api from '../api/axios'
+import { isRental } from '../lib/listing'
 import Navbar from '../components/Navbar.vue'
 import Hero from '../components/Hero.vue'
 import PropertyShowcase from '../components/PropertyShowcase.vue'
@@ -19,7 +21,16 @@ const loading = ref(true)
 const error = ref(null)
 const propertiesSectionRef = ref(null)
 
-const filters = ref({ city: '', type: '', maxPrice: '' })
+const route = useRoute()
+// Enlaces como /?operacion=arriendo (los usan los bots de Instagram y Facebook)
+// llegan con el filtro de operacion ya puesto.
+const OPERATION_FROM_QUERY = { arriendo: 'RENT', venta: 'SALE' }
+const filters = ref({
+  operation: OPERATION_FROM_QUERY[String(route.query.operacion || '').toLowerCase()] || '',
+  city: '',
+  type: '',
+  maxPrice: '',
+})
 const prefersReducedMotion =
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 let bgTween
@@ -62,6 +73,8 @@ const types = computed(() => [...new Set(properties.value.map((p) => p.type))])
 
 const filteredProperties = computed(() => {
   return properties.value.filter((p) => {
+    if (filters.value.operation === 'RENT' && !isRental(p)) return false
+    if (filters.value.operation === 'SALE' && isRental(p)) return false
     if (filters.value.city && p.city !== filters.value.city) return false
     if (filters.value.type && p.type !== filters.value.type) return false
     if (filters.value.maxPrice && p.price > Number(filters.value.maxPrice)) return false

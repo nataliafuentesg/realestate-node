@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import HeroScene from './HeroScene.vue'
 
 defineProps({
@@ -7,10 +8,30 @@ defineProps({
 })
 
 const filters = defineModel('filters', {
-  default: () => ({ city: '', type: '', maxPrice: '' }),
+  default: () => ({ operation: '', city: '', type: '', maxPrice: '' }),
 })
 
 const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
+
+const SALE_PRICES = [
+  { value: '300000000', label: '$300.000.000' },
+  { value: '500000000', label: '$500.000.000' },
+  { value: '1000000000', label: '$1.000.000.000' },
+]
+const RENT_PRICES = [
+  { value: '2000000', label: '$2.000.000 / mes' },
+  { value: '3000000', label: '$3.000.000 / mes' },
+  { value: '5000000', label: '$5.000.000 / mes' },
+  { value: '8000000', label: '$8.000.000 / mes' },
+]
+
+// Los rangos de venta y de arriendo no se pueden mezclar: con "Todas" el
+// filtro de precio no aplica.
+const priceOptions = computed(() => (filters.value.operation === 'RENT' ? RENT_PRICES : SALE_PRICES))
+
+function onOperationChange() {
+  filters.value.maxPrice = ''
+}
 </script>
 
 <template>
@@ -27,14 +48,27 @@ const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
         <em class="text-gold-light not-italic">para vidas excepcionales</em>
       </h1>
       <p class="mt-6 max-w-xl font-sans text-base text-cream/70">
-        Casas, apartamentos y lotes — una selección curada de las mejores propiedades del país.
+        Casas, apartamentos y lotes en venta y arriendo — una selección curada de las mejores propiedades del país.
       </p>
     </div>
 
     <div
       class="absolute inset-x-0 bottom-0 z-20 translate-y-1/2 px-6"
     >
-      <div class="mx-auto flex max-w-4xl flex-col gap-4 rounded-2xl bg-cream p-6 shadow-2xl sm:flex-row sm:items-end">
+      <div class="mx-auto flex max-w-5xl flex-col gap-4 rounded-2xl bg-cream p-6 shadow-2xl sm:flex-row sm:items-end">
+        <div class="flex-1">
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">OPERACIÓN</label>
+          <select
+            v-model="filters.operation"
+            class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+            @change="onOperationChange"
+          >
+            <option value="">Venta y arriendo</option>
+            <option value="SALE">Venta</option>
+            <option value="RENT">Arriendo</option>
+          </select>
+        </div>
+
         <div class="flex-1">
           <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">CIUDAD</label>
           <select
@@ -58,15 +92,16 @@ const typeLabels = { HOUSE: 'Casa', APARTMENT: 'Apartamento', LAND: 'Lote' }
         </div>
 
         <div class="flex-1">
-          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">PRECIO MÁXIMO</label>
+          <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">
+            {{ filters.operation === 'RENT' ? 'CANON MÁXIMO' : 'PRECIO MÁXIMO' }}
+          </label>
           <select
             v-model="filters.maxPrice"
-            class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
+            :disabled="!filters.operation"
+            class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none disabled:opacity-50"
           >
-            <option value="">Sin límite</option>
-            <option value="300000000">$300.000.000</option>
-            <option value="500000000">$500.000.000</option>
-            <option value="1000000000">$1.000.000.000</option>
+            <option value="">{{ filters.operation ? 'Sin límite' : 'Elige venta o arriendo' }}</option>
+            <option v-for="opt in priceOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
         </div>
 

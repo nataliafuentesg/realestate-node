@@ -14,6 +14,8 @@ const form = ref({
   city: '',
   neighborhood: '',
   address: '',
+  listingType: 'SALE',
+  administrationIncluded: false,
   type: 'HOUSE',
   bedrooms: null,
   bathrooms: null,
@@ -195,6 +197,17 @@ onMounted(() => {
         </div>
 
         <div>
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">OPERACIÓN</label>
+          <select
+            v-model="form.listingType"
+            class="w-full rounded-lg border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-mp-fg focus:border-mp-primary focus:outline-none"
+          >
+            <option value="SALE">Venta</option>
+            <option value="RENT">Arriendo</option>
+          </select>
+        </div>
+
+        <div>
           <label class="mb-1 block text-xs tracking-widest text-mp-muted">TIPO</label>
           <select
             v-model="form.type"
@@ -207,7 +220,9 @@ onMounted(() => {
         </div>
 
         <div>
-          <label class="mb-1 block text-xs tracking-widest text-mp-muted">PRECIO (COP)</label>
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">
+            {{ form.listingType === 'RENT' ? 'CANON MENSUAL (COP)' : 'PRECIO (COP)' }}
+          </label>
           <input
             v-model.number="form.price"
             type="number"
@@ -217,8 +232,17 @@ onMounted(() => {
           />
         </div>
 
+        <div v-if="form.listingType === 'RENT'" class="flex items-end">
+          <label class="flex cursor-pointer items-center gap-3 py-2.5 text-sm text-mp-fg">
+            <input v-model="form.administrationIncluded" type="checkbox" class="h-4 w-4 accent-mp-primary" />
+            La administración está incluida en el canon
+          </label>
+        </div>
+
         <div>
-          <label class="mb-1 block text-xs tracking-widest text-mp-muted">ÁREA DEL LOTE (M²)</label>
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">
+            {{ form.type === 'LAND' ? 'ÁREA DEL LOTE (M²)' : 'ÁREA (M²)' }}
+          </label>
           <input
             v-model.number="form.areaM2"
             type="number"
@@ -327,11 +351,11 @@ onMounted(() => {
           />
         </div>
 
-        <div class="sm:col-span-2 mt-2 border-t border-mp-border/10 pt-6">
+        <div v-if="form.listingType !== 'RENT'" class="sm:col-span-2 mt-2 border-t border-mp-border/10 pt-6">
           <p class="text-xs tracking-widest text-mp-muted">INFORMACIÓN LEGAL Y TÉCNICA (opcional)</p>
         </div>
 
-        <div>
+        <div v-if="form.listingType !== 'RENT'">
           <label class="mb-1 block text-xs tracking-widest text-mp-muted">MATRÍCULA INMOBILIARIA</label>
           <input
             v-model="form.propertyRegistration"
@@ -340,7 +364,7 @@ onMounted(() => {
           />
         </div>
 
-        <div>
+        <div v-if="form.listingType !== 'RENT'">
           <label class="mb-1 block text-xs tracking-widest text-mp-muted">CÓDIGO CATASTRAL</label>
           <input
             v-model="form.cadastralCode"
@@ -349,7 +373,7 @@ onMounted(() => {
           />
         </div>
 
-        <div>
+        <div v-if="form.listingType !== 'RENT'">
           <label class="mb-1 block text-xs tracking-widest text-mp-muted">ESTADO LEGAL</label>
           <input
             v-model="form.legalStatus"
@@ -358,7 +382,7 @@ onMounted(() => {
           />
         </div>
 
-        <div>
+        <div v-if="form.listingType !== 'RENT'">
           <label class="mb-1 block text-xs tracking-widest text-mp-muted">USO DE SUELO / ZONIFICACIÓN</label>
           <input
             v-model="form.zoning"

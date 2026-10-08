@@ -42,7 +42,9 @@ export async function onRequestGet(context) {
 
     const title = `${property.title} | Ventas Sabana`
     const typeLabel = TYPE_LABELS[property.type] || property.type
-    const rawDescription = `${typeLabel} en ${property.city} — ${formatPrice(property.price)}. ${
+    const isRental = property.listingType === 'RENT'
+    const priceText = isRental ? `${formatPrice(property.price)} al mes` : formatPrice(property.price)
+    const rawDescription = `${typeLabel}${isRental ? ' en arriendo' : ''} en ${property.city} — ${priceText}. ${
       property.description || ''
     }`
     const description = rawDescription.slice(0, 200)

@@ -8,6 +8,7 @@ import PropertyGallery from '../components/PropertyGallery.vue'
 import PropertyMap from '../components/PropertyMap.vue'
 import { useContactModal } from '../composables/useContactModal'
 import { track } from '../lib/analytics'
+import { isRental } from '../lib/listing'
 
 const { openContactModal } = useContactModal()
 
@@ -96,7 +97,7 @@ onMounted(async () => {
 
         <div class="absolute inset-x-0 bottom-0 px-6 pb-12 text-center lg:px-12">
           <p class="font-sans text-xs tracking-[0.35em] text-gold-light">
-            {{ property.neighborhood ? property.neighborhood.toUpperCase() + ' · ' : '' }}{{ property.city?.toUpperCase() }} · {{ typeLabels[property.type] || property.type }}
+            {{ property.neighborhood ? property.neighborhood.toUpperCase() + ' · ' : '' }}{{ property.city?.toUpperCase() }} · {{ isRental(property) ? 'ARRIENDO · ' : '' }}{{ typeLabels[property.type] || property.type }}
           </p>
           <h1 class="mt-4 font-serif text-4xl text-cream lg:text-5xl">{{ property.title }}</h1>
         </div>
@@ -214,8 +215,19 @@ onMounted(async () => {
 
           <aside v-reveal class="order-1 lg:order-2 lg:col-span-1">
             <div class="lg:sticky lg:top-28 border border-charcoal/10 bg-white p-8 shadow-sm">
-              <p class="font-sans text-xs tracking-widest text-charcoal/50">PRECIO</p>
-              <p class="mt-2 font-serif text-3xl text-gold">{{ formatPrice(property.price) }}</p>
+              <p class="font-sans text-xs tracking-widest text-charcoal/50">
+                {{ isRental(property) ? 'CANON MENSUAL' : 'PRECIO' }}
+              </p>
+              <p class="mt-2 font-serif text-3xl text-gold">
+                {{ formatPrice(property.price) }}
+                <span v-if="isRental(property)" class="font-sans text-sm text-charcoal/50">/ mes</span>
+              </p>
+              <p
+                v-if="isRental(property) && property.administrationIncluded"
+                class="mt-1 font-sans text-xs tracking-widest text-charcoal/50"
+              >
+                ADMINISTRACIÓN INCLUIDA
+              </p>
 
               <ul class="mt-6 space-y-3 border-t border-charcoal/10 pt-6 font-sans text-sm text-charcoal/60">
                 <li v-if="property.bedrooms" class="flex justify-between">
@@ -228,7 +240,7 @@ onMounted(async () => {
                   <span>Parqueaderos</span><span class="text-charcoal">{{ property.parking }}</span>
                 </li>
                 <li class="flex justify-between">
-                  <span>Área del lote</span><span class="text-charcoal">{{ property.areaM2 }} m²</span>
+                  <span>{{ property.type === 'LAND' ? 'Área del lote' : 'Área' }}</span><span class="text-charcoal">{{ property.areaM2 }} m²</span>
                 </li>
                 <li v-if="property.areaBuiltM2" class="flex justify-between">
                   <span>Área construida</span><span class="text-charcoal">{{ property.areaBuiltM2 }} m²</span>

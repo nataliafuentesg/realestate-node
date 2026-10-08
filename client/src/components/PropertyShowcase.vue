@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { isRental } from '../lib/listing'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -79,7 +80,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <span class="absolute left-6 top-6 bg-charcoal/80 px-4 py-1 font-sans text-[11px] tracking-widest text-cream">
-        {{ typeLabels[property.type] || property.type }}
+        {{ isRental(property) ? 'Arriendo · ' : '' }}{{ typeLabels[property.type] || property.type }}
       </span>
     </RouterLink>
 
@@ -101,10 +102,20 @@ onBeforeUnmount(() => {
         <div class="mt-8 flex gap-8 font-sans text-sm text-charcoal/50">
           <span v-if="property.bedrooms">{{ property.bedrooms }} habitaciones</span>
           <span v-if="property.bathrooms">{{ property.bathrooms }} baños</span>
+          <span v-if="property.parking">{{ property.parking }} {{ property.parking === 1 ? 'parqueadero' : 'parqueaderos' }}</span>
           <span>{{ property.areaM2 }} m²</span>
         </div>
 
-        <p class="mt-8 font-serif text-4xl text-gold">{{ formatPrice(property.price) }}</p>
+        <p class="mt-8 font-serif text-4xl text-gold">
+          {{ formatPrice(property.price) }}
+          <span v-if="isRental(property)" class="font-sans text-sm text-charcoal/50">/ mes</span>
+        </p>
+        <p
+          v-if="isRental(property) && property.administrationIncluded"
+          class="mt-1 font-sans text-xs tracking-widest text-charcoal/50"
+        >
+          ADMINISTRACIÓN INCLUIDA
+        </p>
 
         <RouterLink
           :to="`/propiedad/${property.id}`"

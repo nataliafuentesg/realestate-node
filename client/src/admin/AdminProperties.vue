@@ -87,8 +87,12 @@ onMounted(loadProperties)
               <span class="text-mp-fg">{{ property.title }}</span>
             </td>
             <td class="px-5 py-3 text-mp-muted">{{ property.city }}</td>
-            <td class="px-5 py-3 text-mp-muted">{{ typeLabels[property.type] || property.type }}</td>
-            <td class="px-5 py-3 text-mp-muted">{{ formatPrice(property.price) }}</td>
+            <td class="px-5 py-3 text-mp-muted">
+              {{ property.listingType === 'RENT' ? 'Arriendo · ' : '' }}{{ typeLabels[property.type] || property.type }}
+            </td>
+            <td class="px-5 py-3 text-mp-muted">
+              {{ formatPrice(property.price) }}{{ property.listingType === 'RENT' ? ' /mes' : '' }}
+            </td>
             <td class="px-5 py-3 text-right">
               <RouterLink
                 :to="`/admin/propiedades/${property.id}/editar`"
