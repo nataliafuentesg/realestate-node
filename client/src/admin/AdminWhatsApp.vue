@@ -522,7 +522,6 @@ onBeforeUnmount(() => {
                   >
                     <img
                       :src="mediaOf(m).url"
-                      loading="lazy"
                       class="mb-1.5 max-h-72 w-full max-w-[260px] rounded-lg object-cover"
                       alt=""
                     />
