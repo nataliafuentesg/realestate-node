@@ -156,6 +156,23 @@ async function selectConversation(waId, { isPoll = false } = {}) {
   }
 }
 
+// Los mensajes que MANDAMOS con foto, video o documento se guardan como texto
+// ("📷 https://...") y no traen mediaUrl; los que RECIBIMOS si. Esto unifica
+// los dos para poder mostrar el archivo en vez del link.
+const OUTBOUND_MEDIA = /^(📷|🎥|📎)\s([\s\S]*?)(https?:\/\/\S+)$/
+
+function mediaOf(m) {
+  if (m.mediaUrl) {
+    const type = m.mediaType || ''
+    const kind = type.startsWith('audio') ? 'audio' : type.startsWith('image') ? 'image' : type.startsWith('video') ? 'video' : 'file'
+    return { kind, url: m.mediaUrl, caption: m.body }
+  }
+  const match = m.direction === 'OUTBOUND' ? OUTBOUND_MEDIA.exec(m.body || '') : null
+  if (!match) return null
+  const kind = match[1] === '📷' ? 'image' : match[1] === '🎥' ? 'video' : 'file'
+  return { kind, url: match[3], caption: match[2].trim() }
+}
+
 function scrollToBottom() {
   if (threadRef.value) threadRef.value.scrollTop = threadRef.value.scrollHeight
 }
@@ -488,38 +505,49 @@ onBeforeUnmount(() => {
                 >
                   {{ m.repliedToDirection === 'OUTBOUND' ? 'Tú' : 'Cliente' }}: {{ m.repliedToBody }}
                 </div>
-                <audio
-                  v-if="m.mediaUrl && m.mediaType?.startsWith('audio')"
-                  :src="m.mediaUrl"
-                  controls
-                  preload="none"
-                  class="h-9 max-w-[240px]"
-                />
-                <img
-                  v-else-if="m.mediaUrl && m.mediaType?.startsWith('image')"
-                  :src="m.mediaUrl"
-                  class="mb-1.5 max-h-64 max-w-[240px] rounded-lg object-cover"
-                  alt=""
-                />
-                <video
-                  v-else-if="m.mediaUrl && m.mediaType?.startsWith('video')"
-                  :src="m.mediaUrl"
-                  controls
-                  preload="none"
-                  class="mb-1.5 max-h-64 max-w-[240px] rounded-lg"
-                />
-                <a
-                  v-else-if="m.mediaUrl"
-                  :href="m.mediaUrl"
-                  target="_blank"
-                  rel="noopener"
-                  class="mb-1.5 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs underline"
-                  :class="m.direction === 'OUTBOUND' ? 'border-white/30' : 'border-mp-border/20'"
-                >
-                  <FileText :size="14" :stroke-width="1.5" />
-                  Ver archivo
-                </a>
-                {{ m.body }}
+                <template v-if="mediaOf(m)">
+                  <audio
+                    v-if="mediaOf(m).kind === 'audio'"
+                    :src="mediaOf(m).url"
+                    controls
+                    preload="none"
+                    class="h-9 max-w-[240px]"
+                  />
+                  <a
+                    v-else-if="mediaOf(m).kind === 'image'"
+                    :href="mediaOf(m).url"
+                    target="_blank"
+                    rel="noopener"
+                    class="block"
+                  >
+                    <img
+                      :src="mediaOf(m).url"
+                      loading="lazy"
+                      class="mb-1.5 max-h-72 w-full max-w-[260px] rounded-lg object-cover"
+                      alt=""
+                    />
+                  </a>
+                  <video
+                    v-else-if="mediaOf(m).kind === 'video'"
+                    :src="mediaOf(m).url"
+                    controls
+                    preload="none"
+                    class="mb-1.5 max-h-72 max-w-[260px] rounded-lg"
+                  />
+                  <a
+                    v-else
+                    :href="mediaOf(m).url"
+                    target="_blank"
+                    rel="noopener"
+                    class="mb-1.5 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs underline"
+                    :class="m.direction === 'OUTBOUND' ? 'border-white/30' : 'border-mp-border/20'"
+                  >
+                    <FileText :size="14" :stroke-width="1.5" />
+                    Ver archivo
+                  </a>
+                  <span v-if="mediaOf(m).caption && mediaOf(m).kind !== 'audio'" class="block">{{ mediaOf(m).caption }}</span>
+                </template>
+                <template v-else>{{ m.body }}</template>
                 <p
                   class="mt-1 flex items-center gap-1 text-[10px]"
                   :class="m.direction === 'OUTBOUND' ? 'text-white/70' : 'text-mp-muted'"
