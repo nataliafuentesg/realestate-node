@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video } from '@lucide/vue'
+import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video, Send } from '@lucide/vue'
 import api from '../api/axios'
 
 const conversations = ref([])
@@ -283,7 +283,31 @@ async function sendPendingFiles() {
   }
 }
 
+// En movil el chat ocupa toda la pantalla. Se ajusta a la altura REAL visible
+// (visualViewport), que se encoge cuando sale el teclado -- 100vh no lo hace
+// y dejaba el cuadro de texto escondido detras del teclado.
+function syncViewport() {
+  const vv = window.visualViewport
+  if (!vv) return
+  const root = document.documentElement.style
+  root.setProperty('--chat-vh', `${vv.height}px`)
+  root.setProperty('--chat-top', `${vv.offsetTop}px`)
+  if (selectedWaId.value) nextTick(scrollToBottom)
+}
+
+// En el computador Enter envia (Shift+Enter, salto de linea). En el celular
+// Enter es salto de linea, como en WhatsApp, y se envia con el boton.
+function onEnter(event) {
+  if (window.matchMedia('(min-width: 1024px)').matches) {
+    event.preventDefault()
+    sendReply()
+  }
+}
+
 onMounted(() => {
+  syncViewport()
+  window.visualViewport?.addEventListener('resize', syncViewport)
+  window.visualViewport?.addEventListener('scroll', syncViewport)
   loadConversations()
   // Refresco simple por polling -- no hay websocket, pero alcanza para que
   // no toque recargar la pagina para ver mensajes nuevos.
@@ -298,20 +322,24 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  window.visualViewport?.removeEventListener('resize', syncViewport)
+  window.visualViewport?.removeEventListener('scroll', syncViewport)
+  document.documentElement.style.removeProperty('--chat-vh')
+  document.documentElement.style.removeProperty('--chat-top')
   if (pollTimer) clearInterval(pollTimer)
   if (clockTimer) clearInterval(clockTimer)
 })
 </script>
 
 <template>
-  <div class="flex h-[calc(100vh-6.5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
+  <div class="flex h-[calc(100dvh-6.5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
     <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">💬 WhatsApp</h1>
     <p v-if="error" class="mt-2 text-sm text-red-400">{{ error }}</p>
 
     <div class="mt-4 flex min-h-0 flex-1 gap-6 lg:mt-6">
       <!-- Lista de conversaciones: en movil ocupa toda la pantalla y se oculta al abrir un chat -->
       <div
-        class="w-full shrink-0 flex-col overflow-hidden rounded-xl border border-mp-border/10 bg-mp-surface lg:flex lg:max-w-xs"
+        class="w-full shrink-0 flex-col overflow-hidden bg-mp-surface lg:flex lg:max-w-xs lg:rounded-xl lg:border lg:border-mp-border/10"
         :class="selectedWaId ? 'hidden' : 'flex'"
       >
         <div class="border-b border-mp-border/10 p-3">
@@ -387,8 +415,12 @@ onBeforeUnmount(() => {
 
       <!-- Hilo del chat: en movil ocupa toda la pantalla solo cuando hay uno seleccionado -->
       <div
-        class="min-w-0 flex-1 flex-col rounded-xl border border-mp-border/10 bg-mp-surface lg:flex"
-        :class="selectedWaId ? 'flex' : 'hidden'"
+        class="min-w-0 flex-1 flex-col bg-mp-surface lg:flex lg:rounded-xl lg:border lg:border-mp-border/10"
+        :class="
+          selectedWaId
+            ? 'fixed left-0 z-[60] flex h-[var(--chat-vh,100dvh)] w-full top-[var(--chat-top,0px)] lg:static lg:z-auto lg:h-auto lg:w-auto'
+            : 'hidden'
+        "
       >
         <template v-if="selectedWaId">
           <div class="flex items-center gap-2 border-b border-mp-border/10 px-3 py-3 lg:px-5">
@@ -429,7 +461,7 @@ onBeforeUnmount(() => {
             </button>
           </div>
 
-          <div ref="threadRef" class="flex-1 space-y-3 overflow-y-auto p-4 lg:p-5">
+          <div ref="threadRef" class="flex-1 space-y-2 overflow-y-auto overscroll-contain bg-mp-bg/40 px-3 py-3 lg:space-y-3 lg:p-5">
             <p v-if="loadingThread" class="text-sm text-mp-muted">Cargando...</p>
             <div
               v-for="m in messages"
@@ -531,7 +563,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-3 lg:p-4" :class="{ 'border-t-0': pendingFiles.length }">
+          <form @submit.prevent="sendReply" class="flex items-end gap-2 border-t border-mp-border/10 p-2 lg:p-4" :class="{ 'border-t-0': pendingFiles.length }">
             <input
               ref="fileInputRef"
               type="file"
@@ -553,23 +585,24 @@ onBeforeUnmount(() => {
               ref="replyRef"
               v-model="replyText"
               rows="1"
-              :placeholder="pendingFiles.length ? 'Añade un mensaje (opcional)...' : 'Escribe una respuesta... (Shift+Enter para salto de línea)'"
-              class="max-h-32 flex-1 resize-none overflow-y-auto rounded-2xl border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-sm text-mp-fg focus:border-mp-primary focus:outline-none"
+              :placeholder="pendingFiles.length ? 'Añade un mensaje (opcional)...' : 'Escribe un mensaje'"
+              class="max-h-32 min-w-0 flex-1 resize-none overflow-y-auto rounded-2xl border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-base text-mp-fg focus:border-mp-primary focus:outline-none lg:text-sm"
               @input="autoGrow"
-              @keydown.enter.exact.prevent="sendReply"
+              @keydown.enter.exact="onEnter"
             ></textarea>
             <button
               type="submit"
               :disabled="sending || (!replyText.trim() && pendingFiles.length === 0)"
-              class="shrink-0 rounded-full bg-mp-primary px-6 py-2.5 text-xs tracking-widest text-white hover:bg-mp-primary-hover disabled:opacity-50"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-mp-primary text-white hover:bg-mp-primary-hover disabled:opacity-50 lg:h-auto lg:w-auto lg:px-6 lg:py-2.5 lg:text-xs lg:tracking-widest"
             >
-              {{ sending ? '...' : 'ENVIAR' }}
+              <Send :size="18" :stroke-width="2" class="lg:hidden" />
+              <span class="hidden lg:inline">{{ sending ? '...' : 'ENVIAR' }}</span>
             </button>
           </form>
           <p v-if="attachProgress" class="px-4 pb-1 text-[11px] text-mp-muted/60">{{ attachProgress }}</p>
           <p v-if="attachError" class="px-4 pb-1 text-[11px] text-red-400">{{ attachError }}</p>
           <p
-            class="flex items-center gap-1.5 px-4 pb-3 text-[11px]"
+            class="flex items-center gap-1.5 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-[11px] lg:pb-3"
             :class="!windowInfo.open ? 'text-red-400' : windowInfo.urgent ? 'text-amber-400' : 'text-mp-muted/60'"
           >
             <Clock :size="12" :stroke-width="2" class="shrink-0" />
