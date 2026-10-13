@@ -109,12 +109,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="relative h-[68vh] min-h-[420px] overflow-hidden rounded-2xl border border-charcoal/10 bg-charcoal/5 lg:h-[620px]">
+  <div class="relative isolate h-[68vh] min-h-[420px] overflow-hidden rounded-2xl border border-charcoal/10 bg-charcoal/5 lg:h-[620px]">
     <div ref="mapEl" class="h-full w-full"></div>
 
     <p
       v-if="located.length < properties.length"
-      class="absolute left-3 top-3 z-[500] rounded-full bg-white/95 px-3 py-1.5 font-sans text-xs text-charcoal/70 shadow-sm"
+      class="absolute right-3 top-3 z-[500] rounded-full bg-white/95 px-3 py-1.5 font-sans text-xs text-charcoal/70 shadow-sm"
     >
       {{ properties.length - located.length }} sin ubicación en el mapa
     </p>
