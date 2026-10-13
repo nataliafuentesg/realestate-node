@@ -96,14 +96,14 @@ onMounted(async () => {
         </p>
 
         <ul class="mt-4 flex flex-wrap gap-2 font-sans text-sm text-charcoal/75">
-          <li v-if="property.bedrooms" class="rounded-full bg-charcoal/5 px-3 py-1.5">{{ property.bedrooms }} hab.</li>
-          <li v-if="property.bathrooms" class="rounded-full bg-charcoal/5 px-3 py-1.5">
+          <li v-if="property.bedrooms" class="rounded-full bg-gold/10 px-3 py-1.5">{{ property.bedrooms }} hab.</li>
+          <li v-if="property.bathrooms" class="rounded-full bg-gold/10 px-3 py-1.5">
             {{ property.bathrooms }} {{ property.bathrooms === 1 ? 'baño' : 'baños' }}
           </li>
-          <li v-if="property.parking" class="rounded-full bg-charcoal/5 px-3 py-1.5">
+          <li v-if="property.parking" class="rounded-full bg-gold/10 px-3 py-1.5">
             {{ property.parking }} {{ property.parking === 1 ? 'parqueadero' : 'parqueaderos' }}
           </li>
-          <li class="rounded-full bg-charcoal/5 px-3 py-1.5">{{ property.areaM2 }} m²</li>
+          <li class="rounded-full bg-gold/10 px-3 py-1.5">{{ property.areaM2 }} m²</li>
         </ul>
       </div>
 
@@ -259,7 +259,7 @@ onMounted(async () => {
 
               <button
                 data-cursor-hover
-                class="mt-8 w-full rounded-full bg-charcoal px-6 py-4 font-sans text-xs tracking-widest text-cream transition-colors hover:bg-gold hover:text-charcoal"
+                class="mt-8 w-full rounded-full bg-gold px-6 py-4 font-sans text-xs tracking-widest text-white transition-colors hover:bg-red-700"
                 @click="openContactModal(property)"
               >
                 AGENDAR VISITA
@@ -293,7 +293,7 @@ onMounted(async () => {
       >
         <button
           data-cursor-hover
-          class="flex-1 rounded-full bg-charcoal px-4 py-3 font-sans text-xs tracking-widest text-cream"
+          class="flex-1 rounded-full bg-gold px-4 py-3 font-sans text-xs tracking-widest text-white"
           @click="openContactModal(property)"
         >
           AGENDAR VISITA

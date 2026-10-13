@@ -49,14 +49,14 @@ function trackWhatsApp() {
         <span class="font-serif text-sm tracking-widest text-charcoal/30">VENTAS SABANA</span>
       </div>
       <span
-        class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 font-sans text-xs font-medium text-charcoal shadow-sm"
+        class="absolute left-3 top-3 rounded-full bg-gold px-3 py-1 font-sans text-xs font-medium text-white shadow-sm"
       >
         {{ rental ? 'Arriendo · ' : '' }}{{ typeLabels[property.type] || property.type }}
       </span>
     </RouterLink>
 
     <div class="flex flex-1 flex-col p-4">
-      <p class="font-serif text-2xl text-charcoal">
+      <p class="font-serif text-2xl text-gold">
         {{ formatPrice(property.price) }}
         <span v-if="rental" class="font-sans text-sm text-charcoal/50">/ mes</span>
       </p>
@@ -90,7 +90,7 @@ function trackWhatsApp() {
       <div class="mt-auto grid grid-cols-2 gap-2 pt-4">
         <RouterLink
           :to="detailPath"
-          class="rounded-full border border-charcoal/20 px-4 py-2.5 text-center font-sans text-sm font-medium text-charcoal transition-colors hover:border-charcoal"
+          class="rounded-full border border-gold px-4 py-2.5 text-center font-sans text-sm font-medium text-gold transition-colors hover:bg-gold hover:text-white"
         >
           Ver detalles
         </RouterLink>

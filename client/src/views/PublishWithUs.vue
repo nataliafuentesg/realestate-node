@@ -63,7 +63,7 @@ function openMeeting() {
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
         <button
           type="button"
-          class="rounded-full bg-charcoal px-6 py-3.5 font-sans text-sm font-medium text-white transition-colors hover:bg-gold"
+          class="rounded-full bg-gold px-6 py-3.5 font-sans text-sm font-medium text-white transition-colors hover:bg-red-700"
           @click="openMeeting"
         >
           Agendar reunión virtual
@@ -97,15 +97,15 @@ function openMeeting() {
         </li>
       </ol>
 
-      <div class="mt-10 rounded-2xl bg-charcoal p-6 text-cream">
+      <div class="mt-10 rounded-2xl bg-gold p-6 text-white">
         <h2 class="font-serif text-xl">¿Empezamos?</h2>
-        <p class="mt-2 font-sans text-sm leading-relaxed text-cream/70">
+        <p class="mt-2 font-sans text-sm leading-relaxed text-white/85">
           Agenda una reunión virtual y en ella te explicamos las condiciones del servicio y cómo trabajaríamos tu
           propiedad.
         </p>
         <button
           type="button"
-          class="mt-4 rounded-full bg-white px-6 py-3 font-sans text-sm font-medium text-charcoal transition-colors hover:bg-cream"
+          class="mt-4 rounded-full bg-white px-6 py-3 font-sans text-sm font-medium text-gold transition-colors hover:bg-cream"
           @click="openMeeting"
         >
           Agendar reunión virtual

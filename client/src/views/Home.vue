@@ -58,6 +58,7 @@ const filteredProperties = computed(() => {
 
     <main>
       <section id="properties" class="mx-auto max-w-6xl px-4 pb-14 pt-6 lg:px-8 lg:pt-10">
+        <span class="mb-3 block h-1 w-12 rounded-full bg-gold"></span>
         <h1 class="font-serif text-2xl text-charcoal sm:text-3xl">Propiedades en venta y arriendo</h1>
         <p class="mt-1 font-sans text-sm text-charcoal/60">
           Lotes, casas y apartamentos en la Sabana y Bogotá. Escríbenos por WhatsApp y te respondemos de una.

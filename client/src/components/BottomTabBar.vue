@@ -14,7 +14,7 @@ import { track } from '../lib/analytics'
       <li>
         <RouterLink
           :to="{ path: '/', hash: '#properties' }"
-          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-charcoal/70"
+          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-gold"
         >
           <House class="h-6 w-6" />
           Propiedades
@@ -23,7 +23,7 @@ import { track } from '../lib/analytics'
       <li>
         <RouterLink
           to="/publica-con-nosotros"
-          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-charcoal/70"
+          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-gold"
         >
           <Megaphone class="h-6 w-6" />
           Publica
@@ -32,7 +32,7 @@ import { track } from '../lib/analytics'
       <li>
         <RouterLink
           :to="{ path: '/', hash: '#contact' }"
-          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-charcoal/70"
+          class="flex flex-col items-center gap-1 py-2.5 font-sans text-[11px] font-medium text-gold"
         >
           <Mail class="h-6 w-6" />
           Contacto

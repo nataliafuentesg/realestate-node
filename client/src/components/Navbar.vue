@@ -4,7 +4,7 @@ import { track } from '../lib/analytics'
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 border-b border-charcoal/10 bg-white/95 backdrop-blur">
+  <header class="sticky top-0 z-50 border-b border-t-4 border-charcoal/10 border-t-gold bg-white/95 backdrop-blur">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
       <RouterLink to="/" class="font-serif text-xl tracking-[0.12em] text-charcoal">
         VENTAS <span class="text-gold">SABANA</span>

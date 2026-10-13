@@ -134,7 +134,7 @@ async function submitForm() {
                 :key="opt.v"
                 type="button"
                 class="rounded-full border px-4 py-2.5 font-sans text-sm transition-colors"
-                :class="operation === opt.v ? 'border-charcoal bg-charcoal text-cream' : 'border-charcoal/20 text-charcoal/70'"
+                :class="operation === opt.v ? 'border-gold bg-gold text-white' : 'border-charcoal/20 text-charcoal/70'"
                 @click="operation = opt.v"
               >
                 {{ opt.l }}
@@ -228,7 +228,7 @@ async function submitForm() {
             type="submit"
             data-cursor-hover
             :disabled="status === 'sending'"
-            class="mt-2 w-full rounded-full bg-charcoal px-6 py-4 font-sans text-xs tracking-widest text-cream transition-colors hover:bg-gold hover:text-charcoal disabled:opacity-50"
+            class="mt-2 w-full rounded-full bg-gold px-6 py-4 font-sans text-xs tracking-widest text-white transition-colors hover:bg-red-700 disabled:opacity-50"
           >
             {{ status === 'sending' ? 'ENVIANDO...' : 'ENVIAR SOLICITUD' }}
           </button>

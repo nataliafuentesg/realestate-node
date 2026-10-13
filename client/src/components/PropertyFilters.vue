@@ -53,7 +53,7 @@ const selectClass =
         role="tab"
         :aria-selected="filters.operation === op.value"
         class="rounded-full px-5 py-2 font-sans text-sm font-medium transition-colors"
-        :class="filters.operation === op.value ? 'bg-charcoal text-white shadow-sm' : 'text-charcoal/60'"
+        :class="filters.operation === op.value ? 'bg-gold text-white shadow-sm' : 'text-charcoal/60'"
         @click="setOperation(op.value)"
       >
         {{ op.label }}

@@ -1,5 +1,5 @@
 <template>
-  <footer class="relative z-10 border-t border-cream/10 bg-charcoal px-6 pb-24 pt-10 text-cream md:pb-10">
+  <footer class="relative z-10 border-t-4 border-gold bg-charcoal px-6 pb-24 pt-10 text-cream md:pb-10">
     <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
       <p class="font-serif text-lg tracking-[0.15em]">
         VENTAS <span class="text-gold-light">SABANA</span>
