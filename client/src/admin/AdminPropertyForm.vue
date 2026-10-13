@@ -16,6 +16,7 @@ const form = ref({
   address: '',
   listingType: 'SALE',
   administrationIncluded: false,
+  furnishing: '',
   type: 'HOUSE',
   bedrooms: null,
   bathrooms: null,
@@ -120,6 +121,8 @@ async function handleSubmit() {
   saving.value = true
   try {
     const payload = { ...form.value }
+    // El select vacio manda '' y el backend espera null; en ventas no aplica.
+    if (payload.listingType !== 'RENT' || !payload.furnishing) payload.furnishing = null
     if (isEdit.value) {
       await api.put(`/properties/${route.params.id}`, payload)
     } else {
@@ -237,6 +240,19 @@ onMounted(() => {
             <input v-model="form.administrationIncluded" type="checkbox" class="h-4 w-4 accent-mp-primary" />
             La administración está incluida en el canon
           </label>
+        </div>
+
+        <div v-if="form.listingType === 'RENT'">
+          <label class="mb-1 block text-xs tracking-widest text-mp-muted">AMOBLADO</label>
+          <select
+            v-model="form.furnishing"
+            class="w-full rounded-lg border border-mp-border/15 bg-mp-bg px-4 py-2.5 text-mp-fg focus:border-mp-primary focus:outline-none"
+          >
+            <option value="">Sin especificar</option>
+            <option value="FURNISHED">Amoblado</option>
+            <option value="UNFURNISHED">Sin amoblar</option>
+            <option value="BOTH">Amoblado o sin amoblar</option>
+          </select>
         </div>
 
         <div>

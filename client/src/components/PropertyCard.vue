@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { BedDouble, Bath, Car, Ruler, MapPin, MessageCircle } from '@lucide/vue'
-import { isRental } from '../lib/listing'
+import { isRental, FURNISHING_LABELS } from '../lib/listing'
 import { track } from '../lib/analytics'
 
 const props = defineProps({
@@ -62,6 +62,9 @@ function trackWhatsApp() {
       </p>
       <p v-if="rental && property.administrationIncluded" class="font-sans text-xs text-charcoal/50">
         Administración incluida
+      </p>
+      <p v-if="rental && property.furnishing" class="font-sans text-xs font-medium text-charcoal/70">
+        {{ FURNISHING_LABELS[property.furnishing] }}
       </p>
 
       <RouterLink :to="detailPath">

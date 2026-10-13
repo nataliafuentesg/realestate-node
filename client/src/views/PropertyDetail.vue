@@ -8,7 +8,7 @@ import PropertyGallery from '../components/PropertyGallery.vue'
 import PropertyMap from '../components/PropertyMap.vue'
 import { useContactModal } from '../composables/useContactModal'
 import { track } from '../lib/analytics'
-import { isRental } from '../lib/listing'
+import { isRental, FURNISHING_LABELS } from '../lib/listing'
 
 const { openContactModal } = useContactModal()
 
@@ -93,6 +93,9 @@ onMounted(async () => {
           class="mt-1 font-sans text-sm text-charcoal/55"
         >
           Administración incluida
+        </p>
+        <p v-if="isRental(property) && property.furnishing" class="mt-1 font-sans text-sm font-medium text-charcoal/75">
+          {{ FURNISHING_LABELS[property.furnishing] }}
         </p>
 
         <ul class="mt-4 flex flex-wrap gap-2 font-sans text-sm text-charcoal/75">
