@@ -6,6 +6,8 @@ import { isRental } from '../lib/listing'
 import Navbar from '../components/Navbar.vue'
 import PropertyFilters from '../components/PropertyFilters.vue'
 import PropertyCard from '../components/PropertyCard.vue'
+import PropertiesMap from '../components/PropertiesMap.vue'
+import { List, Map as MapIcon } from '@lucide/vue'
 import BottomTabBar from '../components/BottomTabBar.vue'
 import About from '../components/About.vue'
 import Contact from '../components/Contact.vue'
@@ -14,6 +16,7 @@ import Footer from '../components/Footer.vue'
 const properties = ref([])
 const loading = ref(true)
 const error = ref(null)
+const view = ref('list') // list | map
 
 const route = useRoute()
 // Enlaces como /?operacion=arriendo (los usan los bots de Instagram y Facebook)
@@ -77,11 +80,37 @@ const filteredProperties = computed(() => {
         </p>
 
         <template v-else>
-          <p class="mt-5 font-sans text-sm text-charcoal/50">
-            {{ filteredProperties.length }}
-            {{ filteredProperties.length === 1 ? 'propiedad' : 'propiedades' }}
-          </p>
-          <div class="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="mt-5 flex items-center justify-between">
+            <p class="font-sans text-sm text-charcoal/50">
+              {{ filteredProperties.length }}
+              {{ filteredProperties.length === 1 ? 'propiedad' : 'propiedades' }}
+            </p>
+            <div class="inline-flex rounded-full bg-charcoal/5 p-1" role="tablist" aria-label="Vista">
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="view === 'list'"
+                class="flex items-center gap-1.5 rounded-full px-4 py-1.5 font-sans text-sm font-medium transition-colors"
+                :class="view === 'list' ? 'bg-gold text-white shadow-sm' : 'text-charcoal/60'"
+                @click="view = 'list'"
+              >
+                <List class="h-4 w-4" /> Lista
+              </button>
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="view === 'map'"
+                class="flex items-center gap-1.5 rounded-full px-4 py-1.5 font-sans text-sm font-medium transition-colors"
+                :class="view === 'map' ? 'bg-gold text-white shadow-sm' : 'text-charcoal/60'"
+                @click="view = 'map'"
+              >
+                <MapIcon class="h-4 w-4" /> Mapa
+              </button>
+            </div>
+          </div>
+
+          <PropertiesMap v-if="view === 'map'" class="mt-3" :properties="filteredProperties" />
+          <div v-else class="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <PropertyCard v-for="property in filteredProperties" :key="property.id" :property="property" />
           </div>
         </template>
