@@ -1,17 +1,11 @@
 <script setup>
 import { computed, watchEffect } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
-import CustomCursor from './components/CustomCursor.vue'
-import ScrollProgress from './components/ScrollProgress.vue'
 import ContactModal from './components/ContactModal.vue'
 import { initPixel, track } from './lib/analytics'
 
 const route = useRoute()
 const isAdmin = computed(() => route.path.startsWith('/admin'))
-
-watchEffect(() => {
-  document.body.classList.toggle('cursor-none', !isAdmin.value)
-})
 
 watchEffect(() => {
   route.fullPath // dependencia reactiva: re-ejecuta en cada navegacion
@@ -27,10 +21,6 @@ watchEffect(() => {
 </script>
 
 <template>
-  <template v-if="!isAdmin">
-    <ScrollProgress />
-    <CustomCursor />
-    <ContactModal />
-  </template>
+  <ContactModal v-if="!isAdmin" />
   <RouterView />
 </template>

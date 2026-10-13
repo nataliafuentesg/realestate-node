@@ -5,7 +5,10 @@ import api from '../api/axios'
 import { getMinVisitDate, isValidVisitDate } from '../lib/colombianHolidays'
 import { track } from '../lib/analytics'
 
-const { isOpen, property, closeContactModal } = useContactModal()
+const { isOpen, property, mode, closeContactModal } = useContactModal()
+
+const isOwner = computed(() => mode.value === 'owner')
+const operation = ref('sell')
 
 const form = ref({ name: '', email: '', phone: '', message: '' })
 const dates = ref(['', '', ''])
@@ -37,6 +40,7 @@ watch(isOpen, (open) => {
     errorMessage.value = ''
     dates.value = ['', '', '']
     times.value = ['', '', '']
+    operation.value = 'sell'
     form.value = {
       name: '',
       email: '',
@@ -71,9 +75,11 @@ async function submitForm() {
   status.value = 'sending'
   errorMessage.value = ''
 
-  const intro = property.value
-    ? `Me interesa agendar una visita para: ${property.value.title}`
-    : 'Me interesa agendar una visita.'
+  const intro = isOwner.value
+    ? `[Quiere publicar su propiedad con nosotros]\n\nQuiero agendar una reunión virtual para ${operation.value === 'sell' ? 'vender' : 'arrendar'} mi propiedad.`
+    : property.value
+      ? `Me interesa agendar una visita para: ${property.value.title}`
+      : 'Me interesa agendar una visita.'
   const datesList = dates.value
     .map((d, i) => `${i + 1}. ${formatDate(d)}, ${formatTime(times.value[i])}`)
     .join('\n')
@@ -88,7 +94,7 @@ async function submitForm() {
       message,
       property: property.value?.id,
     })
-    track('ScheduleVisit', { propertyId: property.value?.id })
+    track(isOwner.value ? 'ContactFormOwner' : 'ScheduleVisit', { propertyId: property.value?.id })
     status.value = 'success'
   } catch (err) {
     status.value = 'error'
@@ -114,10 +120,28 @@ async function submitForm() {
         </button>
 
         <p class="font-sans text-xs tracking-[0.35em] text-gold">VENTAS SABANA</p>
-        <h2 class="mt-3 font-serif text-2xl text-charcoal">Agendar una visita</h2>
+        <h2 class="mt-3 font-serif text-2xl text-charcoal">
+          {{ isOwner ? 'Agendar reunión virtual' : 'Agendar una visita' }}
+        </h2>
         <p v-if="property" class="mt-2 font-sans text-sm text-charcoal/60">{{ property.title }}</p>
 
         <form v-if="status !== 'success'" class="mt-6 space-y-4" @submit.prevent="submitForm">
+          <div v-if="isOwner">
+            <label class="mb-2 block font-sans text-xs tracking-widest text-charcoal/50">¿QUÉ QUIERES HACER?</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="opt in [{ v: 'sell', l: 'Vender' }, { v: 'rent', l: 'Arrendar' }]"
+                :key="opt.v"
+                type="button"
+                class="rounded-full border px-4 py-2.5 font-sans text-sm transition-colors"
+                :class="operation === opt.v ? 'border-charcoal bg-charcoal text-cream' : 'border-charcoal/20 text-charcoal/70'"
+                @click="operation = opt.v"
+              >
+                {{ opt.l }}
+              </button>
+            </div>
+          </div>
+
           <div>
             <label class="mb-1 block font-sans text-xs tracking-widest text-charcoal/50">NOMBRE</label>
             <input
@@ -150,7 +174,7 @@ async function submitForm() {
               class="w-full border-b border-charcoal/20 bg-transparent py-2 font-sans text-charcoal focus:border-gold focus:outline-none"
             />
             <p class="mt-1 font-sans text-xs text-charcoal/40">
-              Ahí te confirmamos por WhatsApp cuál de las fechas propuestas queda.
+              Ahí te confirmamos por WhatsApp cuál de las fechas propuestas queda{{ isOwner ? ' y te enviamos el enlace de la reunión' : '' }}.
             </p>
           </div>
 

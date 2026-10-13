@@ -11,6 +11,11 @@ const router = createRouter({
       component: () => import('../views/PropertyDetail.vue'),
     },
     {
+      path: '/publica-con-nosotros',
+      name: 'publish-with-us',
+      component: () => import('../views/PublishWithUs.vue'),
+    },
+    {
       path: '/autorizar-pago/:id',
       name: 'autorizar-pago',
       component: () => import('../views/AutorizarPago.vue'),
@@ -45,7 +50,9 @@ const router = createRouter({
       ],
     },
   ],
-  scrollBehavior() {
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) return savedPosition
+    if (to.hash) return { el: to.hash, top: 72, behavior: 'smooth' }
     return { top: 0 }
   },
 })

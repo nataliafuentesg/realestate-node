@@ -44,12 +44,6 @@ body {
   scroll-margin-top: 100px;
 }
 
-@media (min-width: 768px) {
-  body.cursor-none {
-    cursor: none;
-  }
-}
-
 .reveal-hidden {
   opacity: 0;
   transform: translateY(28px);

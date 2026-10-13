@@ -56,63 +56,64 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-cream">
-    <Navbar solid />
+    <Navbar />
 
     <template v-if="loading">
-      <div class="h-[65vh] min-h-[440px] w-full animate-pulse bg-charcoal/10"></div>
-      <div class="mx-auto max-w-6xl px-6 py-16 lg:px-12">
-        <div class="grid gap-16 lg:grid-cols-3">
-          <div class="lg:col-span-2">
-            <div class="h-[380px] animate-pulse rounded-sm bg-charcoal/10 sm:h-[460px]"></div>
-            <div class="mt-16 h-7 w-40 animate-pulse rounded bg-charcoal/10"></div>
-            <div class="mt-6 space-y-3">
-              <div class="h-4 w-full animate-pulse rounded bg-charcoal/10"></div>
-              <div class="h-4 w-full animate-pulse rounded bg-charcoal/10"></div>
-              <div class="h-4 w-2/3 animate-pulse rounded bg-charcoal/10"></div>
-            </div>
-          </div>
-          <div class="h-80 animate-pulse rounded-sm border border-charcoal/10 bg-charcoal/5"></div>
-        </div>
+      <div class="mx-auto max-w-6xl px-4 py-8 lg:px-8">
+        <div class="h-8 w-2/3 animate-pulse rounded bg-charcoal/10"></div>
+        <div class="mt-4 h-10 w-1/3 animate-pulse rounded bg-charcoal/10"></div>
+        <div class="mt-6 h-[300px] animate-pulse rounded-2xl bg-charcoal/10 sm:h-[460px]"></div>
       </div>
     </template>
     <p v-else-if="error" class="py-32 text-center font-sans text-red-500">{{ error }}</p>
 
     <template v-else-if="property">
-      <div class="relative h-[65vh] min-h-[440px] w-full overflow-hidden bg-charcoal">
-        <img
-          v-if="property.images?.[0]"
-          :src="property.images[0]"
-          :alt="property.title"
-          class="h-full w-full object-cover"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/20 to-charcoal/50"></div>
-
+      <div class="mx-auto max-w-6xl px-4 pt-5 lg:px-8">
         <RouterLink
-          to="/"
-          data-cursor-hover
-          class="absolute left-6 top-28 inline-flex items-center gap-2 font-sans text-xs tracking-widest text-cream/70 transition-colors hover:text-gold-light lg:left-12"
+          :to="{ path: '/', hash: '#properties' }"
+          class="inline-flex items-center gap-1 font-sans text-sm text-charcoal/60 transition-colors hover:text-gold"
         >
-          ← VOLVER A PROPIEDADES
+          ← Volver a propiedades
         </RouterLink>
 
-        <div class="absolute inset-x-0 bottom-0 px-6 pb-12 text-center lg:px-12">
-          <p class="font-sans text-xs tracking-[0.35em] text-gold-light">
-            {{ property.neighborhood ? property.neighborhood.toUpperCase() + ' · ' : '' }}{{ property.city?.toUpperCase() }} · {{ isRental(property) ? 'ARRIENDO · ' : '' }}{{ typeLabels[property.type] || property.type }}
-          </p>
-          <h1 class="mt-4 font-serif text-4xl text-cream lg:text-5xl">{{ property.title }}</h1>
-        </div>
+        <p class="mt-4 font-sans text-sm text-charcoal/55">
+          {{ isRental(property) ? 'Arriendo · ' : '' }}{{ typeLabels[property.type] || property.type }}
+        </p>
+        <h1 class="mt-1 font-serif text-2xl leading-tight text-charcoal sm:text-3xl lg:text-4xl">{{ property.title }}</h1>
+        <p class="mt-1 font-sans text-sm text-charcoal/60">
+          {{ property.neighborhood ? property.neighborhood + ', ' : '' }}{{ property.city }}
+        </p>
+
+        <p class="mt-4 font-serif text-3xl text-gold lg:text-4xl">
+          {{ formatPrice(property.price) }}
+          <span v-if="isRental(property)" class="font-sans text-base text-charcoal/50">/ mes</span>
+        </p>
+        <p
+          v-if="isRental(property) && property.administrationIncluded"
+          class="mt-1 font-sans text-sm text-charcoal/55"
+        >
+          Administración incluida
+        </p>
+
+        <ul class="mt-4 flex flex-wrap gap-2 font-sans text-sm text-charcoal/75">
+          <li v-if="property.bedrooms" class="rounded-full bg-charcoal/5 px-3 py-1.5">{{ property.bedrooms }} hab.</li>
+          <li v-if="property.bathrooms" class="rounded-full bg-charcoal/5 px-3 py-1.5">
+            {{ property.bathrooms }} {{ property.bathrooms === 1 ? 'baño' : 'baños' }}
+          </li>
+          <li v-if="property.parking" class="rounded-full bg-charcoal/5 px-3 py-1.5">
+            {{ property.parking }} {{ property.parking === 1 ? 'parqueadero' : 'parqueaderos' }}
+          </li>
+          <li class="rounded-full bg-charcoal/5 px-3 py-1.5">{{ property.areaM2 }} m²</li>
+        </ul>
       </div>
 
-      <div class="mx-auto max-w-6xl px-6 py-16 lg:px-12">
-        <div class="grid gap-16 lg:grid-cols-3">
-          <div class="order-2 lg:order-1 lg:col-span-2">
-            <h2 v-reveal class="font-serif text-2xl text-charcoal">Galería</h2>
-            <div class="mt-8">
-              <PropertyGallery :images="property.images" />
-            </div>
+      <div class="mx-auto max-w-6xl px-4 pb-10 pt-6 lg:px-8">
+        <div class="grid gap-10 lg:grid-cols-3 lg:gap-12">
+          <div class="order-1 lg:col-span-2">
+            <PropertyGallery :images="property.images" />
 
-            <h2 v-reveal class="mt-16 font-serif text-2xl text-charcoal">Descripción</h2>
-            <p v-reveal class="mt-6 whitespace-pre-line font-sans leading-relaxed text-charcoal/70">
+            <h2 class="mt-10 font-serif text-2xl text-charcoal">Descripción</h2>
+            <p class="mt-4 whitespace-pre-line font-sans leading-relaxed text-charcoal/70">
               {{ property.description }}
             </p>
 
@@ -213,7 +214,7 @@ onMounted(async () => {
             </template>
           </div>
 
-          <aside v-reveal class="order-1 lg:order-2 lg:col-span-1">
+          <aside class="order-2 lg:col-span-1">
             <div class="lg:sticky lg:top-28 border border-charcoal/10 bg-white p-8 shadow-sm">
               <p class="font-sans text-xs tracking-widest text-charcoal/50">
                 {{ isRental(property) ? 'CANON MENSUAL' : 'PRECIO' }}
@@ -284,7 +285,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="pb-24 lg:hidden"></div>
+      <div class="pb-20 lg:hidden"></div>
 
       <div
         class="fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-charcoal/10 bg-cream/95 px-4 py-3 backdrop-blur-sm lg:hidden"

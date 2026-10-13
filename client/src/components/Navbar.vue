@@ -1,91 +1,47 @@
 <script setup>
-import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-
-defineProps({
-  solid: { type: Boolean, default: false },
-})
-
-const scrolled = ref(false)
-const mobileOpen = ref(false)
-
-function handleScroll() {
-  scrolled.value = window.scrollY > 40
-}
-
-window.addEventListener('scroll', handleScroll)
-
-function closeMobile() {
-  mobileOpen.value = false
-}
+import { track } from '../lib/analytics'
 </script>
 
 <template>
-  <header
-    class="fixed inset-x-0 top-0 z-50 transition-colors duration-500"
-    :class="scrolled || solid || mobileOpen ? 'bg-charcoal/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'"
-  >
-    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-12">
-      <RouterLink to="/" data-cursor-hover class="font-serif text-2xl tracking-[0.15em] text-cream" @click="closeMobile">
-        VENTAS <span class="text-gold-light">SABANA</span>
+  <header class="sticky top-0 z-50 border-b border-charcoal/10 bg-white/95 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
+      <RouterLink to="/" class="font-serif text-xl tracking-[0.12em] text-charcoal">
+        VENTAS <span class="text-gold">SABANA</span>
       </RouterLink>
 
-      <ul class="hidden items-center gap-10 font-sans text-sm tracking-widest text-cream/80 md:flex">
-        <li><a href="/#properties" class="transition-colors hover:text-gold-light">PROPIEDADES</a></li>
-        <li><a href="/#about" class="transition-colors hover:text-gold-light">NOSOTROS</a></li>
-        <li><a href="/#contact" class="transition-colors hover:text-gold-light">CONTACTO</a></li>
+      <ul class="hidden items-center gap-8 font-sans text-sm text-charcoal/70 md:flex">
+        <li>
+          <RouterLink :to="{ path: '/', hash: '#properties' }" class="transition-colors hover:text-gold">
+            Propiedades
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/publica-con-nosotros" class="transition-colors hover:text-gold">
+            Publica con nosotros
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink :to="{ path: '/', hash: '#about' }" class="transition-colors hover:text-gold">
+            Nosotros
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink :to="{ path: '/', hash: '#contact' }" class="transition-colors hover:text-gold">
+            Contacto
+          </RouterLink>
+        </li>
       </ul>
 
       <a
         href="https://wa.me/573112210714"
         target="_blank"
         rel="noopener noreferrer"
-        data-cursor-hover
-        class="hidden rounded-full border border-gold-light/60 px-6 py-2 font-sans text-xs tracking-widest text-cream/80 md:inline-block"
+        class="rounded-full bg-[#25D366] px-5 py-2 font-sans text-sm font-medium text-white transition-colors hover:bg-[#1DA851]"
+        @click="track('WhatsAppClick')"
       >
-        ESCRÍBENOS POR WHATSAPP
+        WhatsApp
       </a>
-
-      <button
-        data-cursor-hover
-        class="flex h-8 w-8 flex-col items-center justify-center gap-1.5 md:hidden"
-        aria-label="Abrir menú"
-        @click="mobileOpen = !mobileOpen"
-      >
-        <span
-          class="block h-px w-6 bg-cream transition-transform duration-300"
-          :class="mobileOpen ? 'translate-y-[3.5px] rotate-45' : ''"
-        ></span>
-        <span
-          class="block h-px w-6 bg-cream transition-transform duration-300"
-          :class="mobileOpen ? '-translate-y-[3.5px] -rotate-45' : ''"
-        ></span>
-      </button>
     </nav>
-
-    <div v-show="mobileOpen" class="md:hidden">
-      <ul class="flex flex-col gap-1 px-6 pb-6 font-sans text-sm tracking-widest text-cream/80">
-        <li>
-          <a href="/#properties" class="block py-3" @click="closeMobile">PROPIEDADES</a>
-        </li>
-        <li>
-          <a href="/#about" class="block py-3" @click="closeMobile">NOSOTROS</a>
-        </li>
-        <li>
-          <a href="/#contact" class="block py-3" @click="closeMobile">CONTACTO</a>
-        </li>
-        <li>
-          <a
-            href="https://wa.me/573112210714"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-2 block w-full rounded-full border border-gold-light/60 px-6 py-3 text-center text-xs text-cream/80"
-            @click="closeMobile"
-          >
-            ESCRÍBENOS POR WHATSAPP
-          </a>
-        </li>
-      </ul>
-    </div>
   </header>
 </template>

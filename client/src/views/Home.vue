@@ -1,25 +1,19 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api/axios'
 import { isRental } from '../lib/listing'
 import Navbar from '../components/Navbar.vue'
-import Hero from '../components/Hero.vue'
-import PropertyShowcase from '../components/PropertyShowcase.vue'
-import StatsStrip from '../components/StatsStrip.vue'
-import Divider from '../components/Divider.vue'
+import PropertyFilters from '../components/PropertyFilters.vue'
+import PropertyCard from '../components/PropertyCard.vue'
+import BottomTabBar from '../components/BottomTabBar.vue'
 import About from '../components/About.vue'
 import Contact from '../components/Contact.vue'
 import Footer from '../components/Footer.vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const properties = ref([])
 const loading = ref(true)
 const error = ref(null)
-const propertiesSectionRef = ref(null)
 
 const route = useRoute()
 // Enlaces como /?operacion=arriendo (los usan los bots de Instagram y Facebook)
@@ -31,9 +25,6 @@ const filters = ref({
   type: '',
   maxPrice: '',
 })
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-let bgTween
 
 onMounted(async () => {
   try {
@@ -44,28 +35,6 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-
-  if (!prefersReducedMotion && propertiesSectionRef.value) {
-    bgTween = gsap.fromTo(
-      propertiesSectionRef.value,
-      { backgroundColor: '#1a1712' },
-      {
-        backgroundColor: '#faf6f0',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: propertiesSectionRef.value,
-          start: 'top bottom',
-          end: 'top 40%',
-          scrub: true,
-        },
-      },
-    )
-  }
-})
-
-onBeforeUnmount(() => {
-  bgTween?.scrollTrigger?.kill()
-  bgTween?.kill()
 })
 
 const cities = computed(() => [...new Set(properties.value.map((p) => p.city))])
@@ -84,44 +53,44 @@ const filteredProperties = computed(() => {
 </script>
 
 <template>
-  <div class="bg-cream">
+  <div class="min-h-screen bg-cream">
     <Navbar />
-    <Hero v-model:filters="filters" :cities="cities" :types="types" />
 
-    <StatsStrip :properties-count="properties.length" :cities-count="cities.length" />
+    <main>
+      <section id="properties" class="mx-auto max-w-6xl px-4 pb-14 pt-6 lg:px-8 lg:pt-10">
+        <h1 class="font-serif text-2xl text-charcoal sm:text-3xl">Propiedades en venta y arriendo</h1>
+        <p class="mt-1 font-sans text-sm text-charcoal/60">
+          Lotes, casas y apartamentos en la Sabana y Bogotá. Escríbenos por WhatsApp y te respondemos de una.
+        </p>
 
-    <section
-      id="properties"
-      ref="propertiesSectionRef"
-      class="relative z-10 bg-cream px-6 pb-8 pt-24 lg:px-12"
-    >
-      <div class="mx-auto max-w-6xl">
-        <div v-reveal class="mb-4 text-center">
-          <p class="font-sans text-xs tracking-[0.4em] text-gold">COLECCIÓN</p>
-          <h2 class="mt-3 font-serif text-4xl text-charcoal">Propiedades destacadas</h2>
+        <div class="mt-5">
+          <PropertyFilters v-model:filters="filters" :cities="cities" :types="types" />
         </div>
 
-        <Divider />
-
-        <p v-if="loading" class="py-16 text-center font-sans text-charcoal/50">Cargando propiedades...</p>
+        <div v-if="loading" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div v-for="i in 3" :key="i" class="h-96 animate-pulse rounded-2xl bg-charcoal/5"></div>
+        </div>
         <p v-else-if="error" class="py-16 text-center font-sans text-red-500">{{ error }}</p>
         <p v-else-if="filteredProperties.length === 0" class="py-16 text-center font-sans text-charcoal/50">
           No hay propiedades que coincidan con tu búsqueda.
         </p>
 
-        <div v-else>
-          <PropertyShowcase
-            v-for="(property, i) in filteredProperties"
-            :key="property.id"
-            :property="property"
-            :index="i"
-          />
-        </div>
-      </div>
-    </section>
+        <template v-else>
+          <p class="mt-5 font-sans text-sm text-charcoal/50">
+            {{ filteredProperties.length }}
+            {{ filteredProperties.length === 1 ? 'propiedad' : 'propiedades' }}
+          </p>
+          <div class="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <PropertyCard v-for="property in filteredProperties" :key="property.id" :property="property" />
+          </div>
+        </template>
+      </section>
 
-    <About />
-    <Contact />
+      <About />
+      <Contact />
+    </main>
+
     <Footer />
+    <BottomTabBar />
   </div>
 </template>
