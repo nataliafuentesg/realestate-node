@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { RouterLink } from 'vue-router'
 import { MessageCircle, X } from '@lucide/vue'
-import { loadGoogleMaps } from '../lib/googleMaps'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import { isRental } from '../lib/listing'
 import { track } from '../lib/analytics'
 
@@ -11,15 +12,13 @@ const props = defineProps({
 })
 
 const mapEl = ref(null)
-const status = ref('loading') // loading | ready | error
 const selectedId = ref(null)
 
 const located = computed(() => props.properties.filter((p) => p.lat != null && p.lng != null))
 const selected = computed(() => located.value.find((p) => p.id === selectedId.value) || null)
 
 let map = null
-let PriceOverlay = null
-let overlays = []
+let markers = []
 
 function formatPrice(price) {
   return new Intl.NumberFormat('es-CO', {
@@ -32,7 +31,10 @@ function formatPrice(price) {
 // $3.021 M, $3 M/mes -- los precios completos no caben en un pin.
 function pinLabel(p) {
   const millions = p.price / 1_000_000
-  const text = millions >= 100 ? Math.round(millions).toLocaleString('es-CO') : millions.toLocaleString('es-CO', { maximumFractionDigits: 1 })
+  const text =
+    millions >= 100
+      ? Math.round(millions).toLocaleString('es-CO')
+      : millions.toLocaleString('es-CO', { maximumFractionDigits: 1 })
   return `$${text} M${isRental(p) ? '/mes' : ''}`
 }
 
@@ -41,78 +43,42 @@ function whatsappHref(p) {
   return `https://wa.me/573112210714?text=${encodeURIComponent(message)}`
 }
 
-function buildOverlayClass(maps) {
-  return class extends maps.OverlayView {
-    constructor(position, label, onClick) {
-      super()
-      this.position = position
-      this.label = label
-      this.onClick = onClick
-      this.el = null
-    }
-    onAdd() {
-      const el = document.createElement('button')
-      el.type = 'button'
-      el.textContent = this.label
-      el.style.cssText =
-        'position:absolute;transform:translate(-50%,-50%);cursor:pointer;white-space:nowrap;' +
-        'border:2px solid #fff;border-radius:999px;padding:6px 11px;font:600 13px Jost,system-ui,sans-serif;' +
-        'color:#fff;background:#dc2626;box-shadow:0 2px 8px rgba(0,0,0,.35);'
-      el.addEventListener('click', (e) => {
-        e.stopPropagation()
-        this.onClick()
-      })
-      this.el = el
-      this.getPanes().overlayMouseTarget.appendChild(el)
-    }
-    draw() {
-      const point = this.getProjection()?.fromLatLngToDivPixel(this.position)
-      if (!point || !this.el) return
-      this.el.style.left = `${point.x}px`
-      this.el.style.top = `${point.y}px`
-    }
-    onRemove() {
-      this.el?.remove()
-      this.el = null
-    }
-    setSelected(on) {
-      if (!this.el) return
-      this.el.style.background = on ? '#1a1712' : '#dc2626'
-      this.el.style.zIndex = on ? '10' : '0'
-    }
-  }
-}
-
 function render() {
-  if (!map || !PriceOverlay) return
-  overlays.forEach((o) => o.setMap(null))
-  overlays = []
-
-  const maps = window.google.maps
-  const bounds = new maps.LatLngBounds()
+  if (!map) return
+  markers.forEach((m) => m.remove())
+  markers = []
 
   located.value.forEach((p) => {
-    const position = new maps.LatLng(p.lat, p.lng)
-    const overlay = new PriceOverlay(position, pinLabel(p), () => {
+    const marker = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({
+        className: 'price-pin',
+        html: `<span>${pinLabel(p)}</span>`,
+        iconSize: [0, 0],
+      }),
+      keyboard: false,
+    })
+    marker.propertyId = p.id
+    marker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e)
       selectedId.value = p.id
     })
-    overlay.propertyId = p.id
-    overlay.setMap(map)
-    overlays.push(overlay)
-    bounds.extend(position)
+    marker.addTo(map)
+    markers.push(marker)
   })
 
   if (located.value.length === 1) {
-    map.setCenter(bounds.getCenter())
-    map.setZoom(14)
+    map.setView([located.value[0].lat, located.value[0].lng], 14)
   } else if (located.value.length > 1) {
-    map.fitBounds(bounds, 60)
+    map.fitBounds(L.latLngBounds(located.value.map((p) => [p.lat, p.lng])), { padding: [60, 60], maxZoom: 15 })
   }
   highlight()
 }
 
 function highlight() {
-  overlays.forEach((o) => o.setSelected(o.propertyId === selectedId.value))
+  markers.forEach((m) => {
+    m.getElement()?.classList.toggle('is-selected', m.propertyId === selectedId.value)
+    m.setZIndexOffset(m.propertyId === selectedId.value ? 1000 : 0)
+  })
 }
 
 watch(selectedId, highlight)
@@ -122,36 +88,23 @@ watch(located, () => {
 })
 
 onMounted(async () => {
-  try {
-    const maps = await loadGoogleMaps()
-    PriceOverlay = buildOverlayClass(maps)
-    map = new maps.Map(mapEl.value, {
-      center: { lat: 4.75, lng: -74.05 },
-      zoom: 10,
-      disableDefaultUI: true,
-      zoomControl: true,
-      gestureHandling: 'greedy',
-      clickableIcons: false,
-      styles: [
-        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-      ],
-    })
-    map.addListener('click', () => {
-      selectedId.value = null
-    })
-    status.value = 'ready'
-    // El OverlayView necesita que el mapa ya tenga proyeccion antes de dibujar.
-    maps.event.addListenerOnce(map, 'idle', render)
-  } catch (err) {
-    status.value = 'error'
-  }
+  map = L.map(mapEl.value, { zoomControl: true, attributionControl: true }).setView([4.75, -74.05], 10)
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map)
+  map.on('click', () => {
+    selectedId.value = null
+  })
+  await nextTick()
+  map.invalidateSize()
+  render()
 })
 
 onBeforeUnmount(() => {
-  overlays.forEach((o) => o.setMap(null))
-  overlays = []
+  map?.remove()
   map = null
+  markers = []
 })
 </script>
 
@@ -159,26 +112,16 @@ onBeforeUnmount(() => {
   <div class="relative h-[68vh] min-h-[420px] overflow-hidden rounded-2xl border border-charcoal/10 bg-charcoal/5 lg:h-[620px]">
     <div ref="mapEl" class="h-full w-full"></div>
 
-    <div v-if="status === 'loading'" class="absolute inset-0 flex items-center justify-center font-sans text-sm text-charcoal/50">
-      Cargando mapa...
-    </div>
-    <div
-      v-else-if="status === 'error'"
-      class="absolute inset-0 flex items-center justify-center bg-cream px-6 text-center font-sans text-sm text-charcoal/60"
-    >
-      No pudimos cargar el mapa. Puedes ver las propiedades en la lista.
-    </div>
-
     <p
-      v-if="status === 'ready' && located.length < properties.length"
-      class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 font-sans text-xs text-charcoal/70 shadow-sm"
+      v-if="located.length < properties.length"
+      class="absolute left-3 top-3 z-[500] rounded-full bg-white/95 px-3 py-1.5 font-sans text-xs text-charcoal/70 shadow-sm"
     >
       {{ properties.length - located.length }} sin ubicación en el mapa
     </p>
 
     <div
       v-if="selected"
-      class="absolute inset-x-3 bottom-3 z-10 flex gap-3 rounded-2xl bg-white p-3 shadow-xl sm:left-auto sm:w-96"
+      class="absolute inset-x-3 bottom-3 z-[500] flex gap-3 rounded-2xl bg-white p-3 shadow-xl sm:left-auto sm:w-96"
     >
       <button
         type="button"
@@ -220,3 +163,27 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
+
+
+<style>
+.price-pin {
+  background: none;
+  border: none;
+}
+.price-pin span {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  cursor: pointer;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  padding: 6px 11px;
+  font: 600 13px Jost, system-ui, sans-serif;
+  color: #fff;
+  background: #dc2626;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.price-pin.is-selected span {
+  background: #1a1712;
+}
+</style>

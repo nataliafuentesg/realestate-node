@@ -1,12 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api/axios'
 import { isRental } from '../lib/listing'
 import Navbar from '../components/Navbar.vue'
 import PropertyFilters from '../components/PropertyFilters.vue'
 import PropertyCard from '../components/PropertyCard.vue'
-import PropertiesMap from '../components/PropertiesMap.vue'
+// El mapa (Leaflet) pesa ~150 KB: solo se descarga si alguien abre la vista Mapa.
+const PropertiesMap = defineAsyncComponent(() => import('../components/PropertiesMap.vue'))
 import { List, Map as MapIcon } from '@lucide/vue'
 import BottomTabBar from '../components/BottomTabBar.vue'
 import About from '../components/About.vue'
