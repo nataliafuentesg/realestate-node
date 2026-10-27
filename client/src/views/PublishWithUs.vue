@@ -1,12 +1,10 @@
 <script setup>
+import { RouterLink } from 'vue-router'
 import { Video, Camera, Megaphone, MessageCircle, Handshake } from '@lucide/vue'
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
 import BottomTabBar from '../components/BottomTabBar.vue'
-import { useContactModal } from '../composables/useContactModal'
 import { track } from '../lib/analytics'
-
-const { openOwnerMeetingModal } = useContactModal()
 
 const steps = [
   {
@@ -39,11 +37,6 @@ const steps = [
 const whatsappHref =
   'https://wa.me/573112210714?text=' +
   encodeURIComponent('Hola, quiero publicar mi propiedad con Ventas Sabana.')
-
-function openMeeting() {
-  track('ContactFormOwner', { source: 'publish_page_click' })
-  openOwnerMeetingModal()
-}
 </script>
 
 <template>
@@ -61,13 +54,13 @@ function openMeeting() {
       </p>
 
       <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-        <button
-          type="button"
-          class="rounded-full bg-gold px-6 py-3.5 font-sans text-sm font-medium text-white transition-colors hover:bg-red-700"
-          @click="openMeeting"
+        <RouterLink
+          :to="{ path: '/agendar', query: { tipo: 'propiedad' } }"
+          class="rounded-full bg-gold px-6 py-3.5 text-center font-sans text-sm font-medium text-white transition-colors hover:bg-red-700"
+          @click="track('ContactFormOwner', { source: 'publish_page_click' })"
         >
           Agendar reunión virtual
-        </button>
+        </RouterLink>
         <a
           :href="whatsappHref"
           target="_blank"
@@ -103,13 +96,13 @@ function openMeeting() {
           Agenda una reunión virtual y en ella te explicamos las condiciones del servicio y cómo trabajaríamos tu
           propiedad.
         </p>
-        <button
-          type="button"
-          class="mt-4 rounded-full bg-white px-6 py-3 font-sans text-sm font-medium text-gold transition-colors hover:bg-cream"
-          @click="openMeeting"
+        <RouterLink
+          :to="{ path: '/agendar', query: { tipo: 'propiedad' } }"
+          class="mt-4 inline-block rounded-full bg-white px-6 py-3 font-sans text-sm font-medium text-gold transition-colors hover:bg-cream"
+          @click="track('ContactFormOwner', { source: 'publish_page_click' })"
         >
           Agendar reunión virtual
-        </button>
+        </RouterLink>
       </div>
     </main>
 

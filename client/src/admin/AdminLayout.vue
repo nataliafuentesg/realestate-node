@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Building2,
   ClipboardList,
+  CalendarDays,
   MessageCircle,
   MessageSquare,
   Camera,
@@ -113,6 +114,7 @@ const navGroups = computed(() => [
     items: [
       { to: '/admin/propiedades', label: 'Propiedades', icon: Building2 },
       { to: '/admin/leads', label: 'Leads', icon: ClipboardList },
+      { to: '/admin/agenda', label: 'Agenda', icon: CalendarDays },
     ],
   },
   {

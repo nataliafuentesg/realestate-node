@@ -15,6 +15,8 @@ const router = createRouter({
       name: 'publish-with-us',
       component: () => import('../views/PublishWithUs.vue'),
     },
+    { path: '/agendar', name: 'booking', component: () => import('../views/Booking.vue') },
+    { path: '/cita/:token', name: 'appointment', component: () => import('../views/Appointment.vue') },
     {
       path: '/autorizar-pago/:id',
       name: 'autorizar-pago',
@@ -39,6 +41,7 @@ const router = createRouter({
           component: () => import('../admin/AdminPropertyForm.vue'),
         },
         { path: 'leads', name: 'admin-leads', component: () => import('../admin/AdminLeads.vue') },
+        { path: 'agenda', name: 'admin-agenda', component: () => import('../admin/AdminAgenda.vue') },
         { path: 'whatsapp', name: 'admin-whatsapp', component: () => import('../admin/AdminWhatsApp.vue') },
         { path: 'instagram', name: 'admin-instagram', component: () => import('../admin/AdminInstagram.vue') },
         { path: 'instagram/dms', name: 'admin-instagram-dms', component: () => import('../admin/AdminInstagramInbox.vue') },
