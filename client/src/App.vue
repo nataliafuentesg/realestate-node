@@ -3,9 +3,14 @@ import { computed, watchEffect } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 import ContactModal from './components/ContactModal.vue'
 import { initPixel, track } from './lib/analytics'
+import { installAdminPwaTags } from './admin/pwa'
 
 const route = useRoute()
 const isAdmin = computed(() => route.path.startsWith('/admin'))
+
+watchEffect(() => {
+  if (isAdmin.value) installAdminPwaTags()
+})
 
 watchEffect(() => {
   route.fullPath // dependencia reactiva: re-ejecuta en cada navegacion
