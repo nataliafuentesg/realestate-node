@@ -60,3 +60,23 @@ export async function disablePush() {
     await sub.unsubscribe()
   }
 }
+
+// Si el navegador ya tiene la suscripcion pero el servidor la perdio (antes se
+// borraba ante cualquier fallo), la vuelve a registrar. Es idempotente.
+export async function resyncPush() {
+  const reg = await navigator.serviceWorker.getRegistration('/sw.js')
+  if (!reg) return
+  const sub = await reg.pushManager.getSubscription()
+  if (!sub) return
+  const json = sub.toJSON()
+  await api.post('/push/subscribe', {
+    endpoint: json.endpoint,
+    keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+  })
+}
+
+// Pide al servidor una notificacion de prueba a todos los dispositivos.
+export async function sendTestPush() {
+  const { data } = await api.post('/push/test')
+  return data // { devices, delivered, results: [{ service, status, detail }] }
+}

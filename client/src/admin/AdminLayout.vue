@@ -21,7 +21,7 @@ import {
 } from '@lucide/vue'
 import { useAdminAuth } from './auth'
 import { useUnreadCounts, countUnread } from './useUnreadCounts'
-import { isPushSupported, getPushState, enablePush, disablePush } from './push'
+import { isPushSupported, getPushState, enablePush, disablePush, resyncPush, sendTestPush } from './push'
 
 const router = useRouter()
 const route = useRoute()
@@ -48,7 +48,26 @@ onMounted(async () => {
     return
   }
   pushState.value = await getPushState()
+  if (pushState.value === 'subscribed') resyncPush().catch(() => {})
 })
+
+async function testPush() {
+  pushBusy.value = true
+  pushError.value = ''
+  try {
+    const { devices, delivered } = await sendTestPush()
+    pushError.value =
+      devices === 0
+        ? 'El servidor no tiene ningún dispositivo registrado. Toca "Notificaciones activas" para desactivar y vuelve a activarlas.'
+        : delivered === 0
+          ? `Se intentó enviar a ${devices} dispositivo(s) pero ninguno lo aceptó.`
+          : `Enviada a ${delivered} de ${devices} dispositivo(s). Si no ves nada en este celular, revisa los permisos de notificaciones del teléfono.`
+  } catch (err) {
+    pushError.value = 'No se pudo enviar la prueba.'
+  } finally {
+    pushBusy.value = false
+  }
+}
 
 async function togglePush() {
   pushBusy.value = true
@@ -231,6 +250,14 @@ const navGroups = computed(() => [
                     : 'Activar notificaciones'
             }}
           </span>
+        </button>
+        <button
+          v-if="pushState === 'subscribed' && !collapsed"
+          @click="testPush"
+          :disabled="pushBusy"
+          class="px-4 pb-1 text-left text-xs text-mp-primary-hover hover:underline disabled:opacity-50"
+        >
+          Enviar notificación de prueba
         </button>
         <p v-if="pushError && !collapsed" class="px-4 text-xs text-red-400">{{ pushError }}</p>
 
