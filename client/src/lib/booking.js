@@ -32,7 +32,8 @@ export function parseDay(iso) {
 }
 
 export function formatDayShort(iso) {
-  return parseDay(iso).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '')
+  const text = parseDay(iso).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '')
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 export function formatDayLong(iso) {

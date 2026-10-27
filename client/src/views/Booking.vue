@@ -141,7 +141,7 @@ const inputClass =
               v-for="day in visibleDays"
               :key="day.date"
               type="button"
-              class="rounded-xl border px-3.5 py-2 font-sans text-sm capitalize transition-colors"
+              class="rounded-xl border px-3.5 py-2 font-sans text-sm transition-colors"
               :class="selectedDay === day.date ? 'border-gold bg-gold text-white' : 'border-charcoal/15 bg-white text-charcoal hover:border-charcoal/40'"
               @click="chooseDay(day.date)"
             >
