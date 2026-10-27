@@ -5,7 +5,7 @@ import api from '../api/axios'
 // contador de "sin responder" en el menu y las bandejas de WhatsApp/
 // Instagram usen siempre los mismos datos, sin duplicar el polling.
 //
-// "Sin responder" = la ULTIMA fila de esa conversacion es INBOUND (el
+// "Sin leer" (WhatsApp: ver campo unread del servidor). Para IG/FB: la ULTIMA fila de esa conversacion es INBOUND (el
 // cliente escribio y todavia nadie del equipo le contesto). No hay un
 // campo "leido" en la base de datos -- en cuanto alguien responde desde
 // el panel (o el bot), lastDirection pasa a OUTBOUND y esa conversacion
@@ -42,5 +42,7 @@ export function useUnreadCounts() {
 }
 
 export function countUnread(conversations) {
-  return conversations.filter((c) => c.lastDirection === 'INBOUND').length
+  // WhatsApp trae `unread` desde el servidor (ya descuenta lo que se abrio en el panel);
+  // Instagram y Facebook todavia usan "el ultimo mensaje es del cliente".
+  return conversations.filter((c) => c.unread ?? c.lastDirection === 'INBOUND').length
 }

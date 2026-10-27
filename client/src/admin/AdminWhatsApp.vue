@@ -2,6 +2,9 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video, Send } from '@lucide/vue'
 import api from '../api/axios'
+import { useUnreadCounts } from './useUnreadCounts'
+
+const { refresh: refreshUnreadCounts } = useUnreadCounts()
 
 const conversations = ref([])
 const loadingConversations = ref(true)
@@ -41,9 +44,32 @@ function formatTime(value) {
   return new Date(value).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })
 }
 
+// "Sin leer" = el cliente escribio de ultimo Y nadie del equipo ha abierto el
+// chat desde entonces (el servidor lo recuerda, asi el celular y el computador
+// ven lo mismo). Antes seguia marcado hasta que alguien respondiera.
 function isUnread(c) {
-  return c.lastDirection === 'INBOUND'
+  return c.unread ?? c.lastDirection === 'INBOUND'
 }
+
+async function markRead(waId) {
+  try {
+    await api.put(`/whatsapp/conversations/${waId}/read`)
+    await Promise.all([loadConversations(), refreshUnreadCounts()])
+  } catch (err) {
+    // no es critico: el punto rojo se quita en la proxima carga
+  }
+}
+
+async function markAllRead() {
+  try {
+    await api.post('/whatsapp/conversations/read-all')
+    await Promise.all([loadConversations(), refreshUnreadCounts()])
+  } catch (err) {
+    error.value = 'No se pudo marcar todo como leído.'
+  }
+}
+
+const unreadTotal = computed(() => conversations.value.filter(isUnread).length)
 
 function initials(c) {
   if (c.contactName) {
@@ -145,6 +171,8 @@ async function selectConversation(waId, { isPoll = false } = {}) {
   try {
     const res = await api.get(`/whatsapp/conversations/${waId}`)
     messages.value = res.data
+    // Si estas viendo el chat, lo que tiene adentro ya lo leiste.
+    if (conversations.value.find((c) => c.waId === waId && isUnread(c))) markRead(waId)
     if (wasNearBottom) {
       await nextTick()
       scrollToBottom()
@@ -360,6 +388,10 @@ onBeforeUnmount(() => {
         :class="selectedWaId ? 'hidden' : 'flex'"
       >
         <div class="border-b border-mp-border/10 p-3">
+          <div v-if="unreadTotal > 0" class="mb-2 flex items-center justify-between text-xs">
+            <span class="text-mp-muted">{{ unreadTotal }} sin leer</span>
+            <button class="text-mp-primary-hover hover:underline" @click="markAllRead">Marcar todo como leído</button>
+          </div>
           <div class="relative">
             <Search :size="15" :stroke-width="1.75" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mp-muted/50" />
             <input
