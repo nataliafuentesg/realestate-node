@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
-import { ArrowLeft } from '@lucide/vue'
+import { ArrowLeft, Bot, UserRound } from '@lucide/vue'
 import api from '../api/axios'
 import ConversationSummary from './ConversationSummary.vue'
 import ConnectedAccountBadge from './ConnectedAccountBadge.vue'
@@ -55,6 +55,28 @@ async function selectConversation(senderId) {
 
 function scrollToBottom() {
   if (threadRef.value) threadRef.value.scrollTop = threadRef.value.scrollHeight
+}
+
+const takeoverBusy = ref(false)
+
+// Quien lleva la conversacion: la IA (por defecto) o una persona. Al responder a mano
+// la IA se calla sola; este boton la devuelve (o toma el control sin escribir).
+async function toggleTakeover() {
+  const conversation = selectedConversation.value
+  if (!conversation) return
+  takeoverBusy.value = true
+  try {
+    if (conversation.humanHandling) {
+      await api.delete(`/instagram/conversations/${selectedSenderId.value}/takeover`)
+    } else {
+      await api.put(`/instagram/conversations/${selectedSenderId.value}/takeover`)
+    }
+    conversation.humanHandling = !conversation.humanHandling
+  } catch (err) {
+    error.value = 'No se pudo cambiar quién lleva la conversación.'
+  } finally {
+    takeoverBusy.value = false
+  }
 }
 
 async function sendReply() {
@@ -139,7 +161,23 @@ onBeforeUnmount(() => {
             >
               <ArrowLeft :size="18" :stroke-width="1.75" />
             </button>
-            <p class="text-sm font-medium text-mp-fg">Usuario {{ selectedSenderId.slice(-6) }}</p>
+            <p class="min-w-0 flex-1 text-sm font-medium text-mp-fg">Usuario {{ selectedSenderId.slice(-6) }}</p>
+            <button
+              type="button"
+              @click="toggleTakeover"
+              :disabled="takeoverBusy"
+              class="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
+              :class="
+                selectedConversation?.humanHandling
+                  ? 'border-mp-primary/40 bg-mp-primary/15 text-mp-primary-hover'
+                  : 'border-mp-border/15 bg-mp-bg text-mp-muted hover:text-mp-fg'
+              "
+              :title="selectedConversation?.humanHandling ? 'La IA está en silencio, tú respondes' : 'La IA puede responder sola'"
+            >
+              <UserRound v-if="selectedConversation?.humanHandling" :size="13" :stroke-width="2" />
+              <Bot v-else :size="13" :stroke-width="2" />
+              <span class="hidden sm:inline">{{ selectedConversation?.humanHandling ? 'Tú al mando' : 'IA activa' }}</span>
+            </button>
           </div>
 
           <ConversationSummary
