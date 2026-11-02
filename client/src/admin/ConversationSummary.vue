@@ -5,8 +5,9 @@ import api from '../api/axios'
 
 // Resumen con IA de la conversacion abierta: que quiere la persona, que esta
 // pendiente y el siguiente paso, para no tener que leerla toda al retomarla.
-// `version` cambia cuando llegan mensajes nuevos (el servidor solo regenera
-// el resumen si hay mensajes que el guardado no tiene).
+// Generarlo cuesta (IA), asi que NUNCA se genera solo: al abrir la conversacion
+// solo se muestra el que ya esta guardado (gratis), avisando si llegaron mensajes
+// nuevos desde entonces; el boton lo genera o lo actualiza cuando tu quieras.
 const props = defineProps({
   channel: { type: String, required: true }, // whatsapp | instagram | facebook
   conversationId: { type: String, required: true },
@@ -15,33 +16,59 @@ const props = defineProps({
 
 const summary = ref(null)
 const loading = ref(false)
+const generating = ref(false)
 const failed = ref(false)
+const generateError = ref('')
 const collapsed = ref(localStorage.getItem('mp-summary-collapsed') === '1')
 
 let requestSeq = 0
 
-async function load() {
+// refresh=false: solo lo guardado (sin IA). refresh=true: genera uno nuevo si hace falta.
+async function load(refresh = false) {
   const seq = ++requestSeq
-  loading.value = true
+  if (refresh) {
+    generating.value = true
+    generateError.value = ''
+  } else {
+    loading.value = true
+  }
   failed.value = false
   try {
-    const res = await api.get(`/${props.channel}/conversations/${encodeURIComponent(props.conversationId)}/summary`)
+    const res = await api.get(
+      `/${props.channel}/conversations/${encodeURIComponent(props.conversationId)}/summary`,
+      { params: refresh ? { refresh: true } : {} },
+    )
     if (seq !== requestSeq) return
-    summary.value = res.status === 204 || !res.data ? null : res.data
+    const data = res.status === 204 || !res.data ? null : res.data
+    if (refresh && !data) generateError.value = 'No se pudo generar el resumen. Intenta de nuevo.'
+    if (data || !refresh) summary.value = data
   } catch (err) {
     if (seq !== requestSeq) return
-    failed.value = true
+    if (refresh) generateError.value = 'No se pudo generar el resumen. Intenta de nuevo.'
+    else failed.value = true
   } finally {
-    if (seq === requestSeq) loading.value = false
+    if (seq === requestSeq) {
+      loading.value = false
+      generating.value = false
+    }
   }
 }
+
+function generate() {
+  load(true)
+}
+
+const updatedLabel = computed(() => {
+  if (!summary.value?.updatedAt) return ''
+  return new Date(summary.value.updatedAt).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
+})
 
 watch(
   () => [props.channel, props.conversationId, props.version],
   (current, previous) => {
     // otra conversacion: no mostrar el resumen de la anterior
     if (previous && current[1] !== previous[1]) summary.value = null
-    load()
+    load(false)
   },
   { immediate: true },
 )
@@ -69,9 +96,22 @@ const hasPending = computed(() => summary.value && !/^nada pendiente/i.test(summ
 </script>
 
 <template>
-  <!-- Mientras carga por primera vez, una franja delgada; si falla o no hay IA, no se muestra nada -->
+  <!-- Cargando lo guardado (gratis) -->
   <div v-if="loading && !summary" class="shrink-0 border-b border-mp-border/10 bg-mp-surface px-4 py-2 text-xs text-mp-muted">
-    <Sparkles :size="13" class="mr-1 inline animate-pulse text-mp-primary-hover" /> Preparando resumen…
+    <Sparkles :size="13" class="mr-1 inline animate-pulse text-mp-primary-hover" /> Buscando resumen…
+  </div>
+
+  <!-- Todavia no hay resumen: se ofrece generarlo (cuesta una llamada a la IA) -->
+  <div v-else-if="!summary && !failed" class="flex shrink-0 items-center gap-3 border-b border-mp-border/10 bg-mp-surface px-4 py-2">
+    <Sparkles :size="14" class="shrink-0 text-mp-muted" />
+    <span class="flex-1 text-xs text-mp-muted">{{ generateError || 'Resumen con IA de esta conversación' }}</span>
+    <button
+      :disabled="generating"
+      class="shrink-0 rounded-full border border-mp-primary/40 bg-mp-primary/10 px-3 py-1 text-xs font-medium text-mp-primary-hover hover:bg-mp-primary/20 disabled:opacity-60"
+      @click="generate"
+    >
+      {{ generating ? 'Generando…' : 'Generar resumen' }}
+    </button>
   </div>
 
   <div v-else-if="summary && !failed" class="shrink-0 border-b border-mp-border/10 bg-mp-surface">
@@ -82,6 +122,7 @@ const hasPending = computed(() => summary.value && !/^nada pendiente/i.test(summ
         <AlertTriangle :size="11" /> Urgente
       </span>
       <span v-if="interest" class="hidden rounded-full px-2 py-0.5 text-[11px] sm:inline" :class="interest.class">{{ interest.label }}</span>
+      <span v-if="summary.stale" class="rounded-full bg-yellow-500/15 px-2 py-0.5 text-[11px] text-yellow-400">Desactualizado</span>
       <span v-if="collapsed" class="min-w-0 flex-1 truncate text-xs" :class="hasPending ? 'text-mp-fg' : 'text-mp-muted'">
         {{ summary.pendiente }}
       </span>
@@ -107,6 +148,22 @@ const hasPending = computed(() => summary.value && !/^nada pendiente/i.test(summ
         <span v-for="d in dataEntries" :key="d.label" class="rounded-full bg-white/5 px-2.5 py-1 text-xs text-mp-fg/85">
           <span class="text-mp-muted">{{ d.label }}:</span> {{ d.value }}
         </span>
+      </div>
+
+      <!-- Actualizar: solo cuando tu lo pides (cuesta una llamada a la IA) -->
+      <div class="flex flex-wrap items-center gap-2 border-t border-mp-border/10 pt-2 text-xs">
+        <span :class="summary.stale ? 'text-yellow-400' : 'text-mp-muted'">
+          {{ summary.stale ? 'Hay mensajes nuevos desde este resumen' : 'Actualizado ' + updatedLabel }}
+        </span>
+        <button
+          v-if="summary.stale"
+          :disabled="generating"
+          class="rounded-full border border-mp-primary/40 bg-mp-primary/10 px-3 py-1 font-medium text-mp-primary-hover hover:bg-mp-primary/20 disabled:opacity-60"
+          @click="generate"
+        >
+          {{ generating ? 'Actualizando…' : 'Actualizar resumen' }}
+        </button>
+        <span v-if="generateError" class="text-red-400">{{ generateError }}</span>
       </div>
     </div>
   </div>
