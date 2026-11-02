@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { ArrowLeft } from '@lucide/vue'
 import api from '../api/axios'
+import ConversationSummary from './ConversationSummary.vue'
 import ConnectedAccountBadge from './ConnectedAccountBadge.vue'
 
 const conversations = ref([])
@@ -140,6 +141,13 @@ onBeforeUnmount(() => {
             </button>
             <p class="text-sm font-medium text-mp-fg">Usuario {{ selectedSenderId.slice(-6) }}</p>
           </div>
+
+          <ConversationSummary
+            :key="selectedSenderId"
+            channel="facebook"
+            :conversation-id="selectedSenderId"
+            :version="messages.length ? messages[messages.length - 1].id : 0"
+          />
 
           <div ref="threadRef" class="flex-1 space-y-3 overflow-y-auto p-4 lg:p-5">
             <p v-if="loadingThread" class="text-sm text-mp-muted">Cargando...</p>

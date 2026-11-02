@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video, Send } from '@lucide/vue'
 import api from '../api/axios'
 import { useUnreadCounts } from './useUnreadCounts'
+import ConversationSummary from './ConversationSummary.vue'
 
 const { refresh: refreshUnreadCounts } = useUnreadCounts()
 
@@ -509,6 +510,13 @@ onBeforeUnmount(() => {
               <span class="hidden sm:inline">{{ selectedConversation?.humanHandling ? 'Tú al mando' : 'Bot activo' }}</span>
             </button>
           </div>
+
+          <ConversationSummary
+            :key="selectedWaId"
+            channel="whatsapp"
+            :conversation-id="selectedWaId"
+            :version="messages.length ? messages[messages.length - 1].id : 0"
+          />
 
           <div ref="threadRef" class="flex-1 space-y-2 overflow-y-auto overscroll-contain bg-mp-bg/40 px-3 py-3 lg:space-y-3 lg:p-5">
             <p v-if="loadingThread" class="text-sm text-mp-muted">Cargando...</p>
