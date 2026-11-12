@@ -154,6 +154,14 @@ const inputClass = 'rounded-lg border border-mp-border/15 bg-mp-bg px-3 py-2 tex
         <Search :size="15" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mp-muted/60" />
         <input v-model="search" :class="[inputClass, 'w-full pl-9']" placeholder="Buscar nombre, teléfono, etiqueta…" />
       </div>
+      <button
+        :disabled="importing"
+        class="inline-flex items-center gap-1.5 rounded-full border border-mp-border/20 px-3.5 py-2 text-sm text-mp-fg hover:bg-white/5 disabled:opacity-60"
+        title="Trae al CRM las conversaciones, solicitudes y reuniones que ya existían (no duplica)"
+        @click="importExisting"
+      >
+        <Download :size="15" /> {{ importing ? 'Importando…' : 'Importar' }}
+      </button>
       <button class="inline-flex items-center gap-1.5 rounded-full bg-mp-primary px-4 py-2 text-sm font-medium text-white hover:bg-mp-primary-hover" @click="showNew = true">
         <Plus :size="15" /> Nuevo
       </button>
