@@ -184,6 +184,16 @@ async function disconnect() {
         </ul>
       </div>
 
+      <div class="mt-4 rounded-xl border border-mp-border/10 bg-mp-surface p-4 text-sm text-mp-fg/90">
+        <p class="font-medium text-mp-fg">Probar primero con tu número, y desconectar cuando quieras</p>
+        <ul class="mt-2 list-disc space-y-1.5 pl-5">
+          <li>Puedes conectar primero tu propio número para probar, y después el de Camila. El número anterior <strong>sigue funcionando</strong>: cada respuesta sale por el número al que le escribieron.</li>
+          <li>Conectar un número nuevo reemplaza al conectado desde esta pantalla (el del servidor se mantiene).</li>
+          <li><strong>"Volver al número del servidor"</strong> solo deja de usar ese número en el sistema. En Meta no se desconecta nada, y la app del celular sigue funcionando igual.</li>
+          <li>Para desconectar de la API del todo, hazlo desde la app de WhatsApp Business del celular (en los ajustes de la cuenta, en la sección de la plataforma empresarial / cuentas conectadas). Tus chats quedan en el celular.</li>
+        </ul>
+      </div>
+
       <button
         :disabled="!config.configured || connecting"
         class="mt-5 inline-flex items-center gap-2 rounded-full bg-mp-primary px-6 py-3 text-sm font-medium text-white hover:bg-mp-primary-hover disabled:cursor-not-allowed disabled:opacity-40"

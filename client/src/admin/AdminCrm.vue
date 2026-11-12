@@ -240,6 +240,7 @@ const inputClass = 'rounded-lg border border-mp-border/15 bg-mp-bg px-3 py-2 tex
             <div v-if="c.tags.length" class="mt-2 flex flex-wrap gap-1">
               <span v-for="t in c.tags.slice(0, 3)" :key="t" class="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-mp-fg/80">{{ t }}</span>
             </div>
+            <p v-if="c.aiOff" class="mt-2 inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-0.5 text-[11px] text-yellow-300">Sin IA · lo atiende una persona</p>
 
             <div class="mt-2 flex items-center gap-2 text-[11px] text-mp-muted">
               <span>{{ timeAgo(c.lastActivityAt) }}</span>

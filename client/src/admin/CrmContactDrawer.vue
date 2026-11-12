@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { X, Trash2, ExternalLink, Plus, CircleCheck, Circle, Phone, Mail, CalendarDays, Video } from '@lucide/vue'
+import { X, Trash2, ExternalLink, Plus, CircleCheck, Circle, Phone, Mail, CalendarDays, Video, Bot, UserRound } from '@lucide/vue'
 import api from '../api/axios'
 import ConversationSummary from './ConversationSummary.vue'
 import { STAGES, PIPELINES, stageOf, formatMoney, formatDate, formatDateTime, todayIso, CHANNEL_ROUTES } from './crm'
@@ -85,6 +85,16 @@ async function changeStage(event) {
     emit('changed')
   } catch (err) {
     error.value = 'No se pudo cambiar la etapa.'
+  }
+}
+
+async function toggleAi() {
+  try {
+    await api.put(`/crm/contacts/${props.contactId}/ai`, null, { params: { off: !contact.value.aiOff } })
+    await load()
+    emit('changed')
+  } catch (err) {
+    error.value = 'No se pudo cambiar la IA de este contacto.'
   }
 }
 
@@ -178,6 +188,20 @@ const inputClass = 'w-full rounded-lg border border-mp-border/15 bg-mp-bg px-3 p
             </select>
           </div>
           <p v-if="contact.stage === 'LOST' && contact.lostReason" class="-mt-3 text-xs text-mp-muted">Motivo: {{ contact.lostReason }}</p>
+
+          <!-- IA: quien atiende a este contacto -->
+          <div class="flex items-center gap-3 rounded-lg border px-3 py-2.5" :class="contact.aiOff ? 'border-yellow-500/30 bg-yellow-500/5' : 'border-mp-border/10 bg-white/[0.03]'">
+            <component :is="contact.aiOff ? UserRound : Bot" :size="18" :class="contact.aiOff ? 'text-yellow-300' : 'text-mp-primary-hover'" />
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-mp-fg">{{ contact.aiOff ? 'La IA está apagada para este contacto' : 'La IA puede atender a este contacto' }}</p>
+              <p class="text-xs text-mp-muted">
+                {{ contact.aiOff ? 'Lo atiende una persona: la IA y el bot no le responden.' : 'Responde sola, salvo que tú le escribas desde el celular o el panel.' }}
+              </p>
+            </div>
+            <button class="shrink-0 rounded-full border border-mp-border/20 px-3 py-1.5 text-xs font-medium text-mp-fg hover:bg-white/5" @click="toggleAi">
+              {{ contact.aiOff ? 'Activar IA' : 'Apagar IA' }}
+            </button>
+          </div>
 
           <!-- Acciones rápidas -->
           <div class="flex flex-wrap gap-2">
