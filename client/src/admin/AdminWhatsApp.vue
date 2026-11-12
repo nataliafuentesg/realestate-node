@@ -1,11 +1,27 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, computed, watch } from 'vue'
 import { ArrowLeft, Check, CheckCheck, Clock, AlertCircle, Pin, Search, Bot, UserRound, Trash2, Paperclip, X, FileText, Video, Send } from '@lucide/vue'
 import api from '../api/axios'
+import { useRoute, RouterLink } from 'vue-router'
 import { useUnreadCounts } from './useUnreadCounts'
 import ConversationSummary from './ConversationSummary.vue'
+import { stageOf } from './crm'
 
 const { refresh: refreshUnreadCounts } = useUnreadCounts()
+const route = useRoute()
+
+// Etapa de esta persona en el CRM (si ya existe como contacto).
+const crmContact = ref(null)
+async function loadCrmContact(waId) {
+  crmContact.value = null
+  try {
+    const res = await api.get('/crm/by-conversation', { params: { channel: 'whatsapp', id: waId } })
+    if (selectedWaId.value === waId) crmContact.value = res.data
+  } catch (err) {
+    // 404: todavia no es contacto del CRM, no se muestra nada
+  }
+}
+watch(selectedWaId, (waId) => { if (waId) loadCrmContact(waId) })
 
 const conversations = ref([])
 const loadingConversations = ref(true)
@@ -355,6 +371,8 @@ onMounted(() => {
   window.visualViewport?.addEventListener('resize', syncViewport)
   window.visualViewport?.addEventListener('scroll', syncViewport)
   loadConversations()
+  // Enlace desde el CRM: /admin/whatsapp?c=<numero> abre esa conversacion.
+  if (route.query.c) selectConversation(String(route.query.c))
   // Refresco simple por polling -- no hay websocket, pero alcanza para que
   // no toque recargar la pagina para ver mensajes nuevos.
   pollTimer = setInterval(() => {
@@ -491,6 +509,17 @@ onBeforeUnmount(() => {
                 {{ formatPhone(selectedWaId) }}
               </p>
             </div>
+
+            <RouterLink
+              v-if="crmContact"
+              :to="{ path: '/admin/crm' }"
+              class="hidden shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium sm:flex"
+              :class="stageOf(crmContact.stage).chip"
+              title="Ver en el CRM"
+            >
+              <span class="h-1.5 w-1.5 rounded-full" :class="stageOf(crmContact.stage).dot"></span>
+              {{ stageOf(crmContact.stage).label }}
+            </RouterLink>
 
             <!-- Toggle visible de quien lleva la conversacion: bot automatico o tu al mando. -->
             <button

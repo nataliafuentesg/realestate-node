@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue'
 import { ArrowLeft } from '@lucide/vue'
+import { useRoute } from 'vue-router'
 import api from '../api/axios'
 import ConversationSummary from './ConversationSummary.vue'
 import ConnectedAccountBadge from './ConnectedAccountBadge.vue'
@@ -72,8 +73,12 @@ async function sendReply() {
   }
 }
 
+const route = useRoute()
+
 onMounted(() => {
   loadConversations()
+  // Enlace desde el CRM: ?c=<id> abre esa conversacion.
+  if (route.query.c) selectConversation(String(route.query.c))
   // Refresco simple por polling -- no hay websocket, pero alcanza para que
   // no toque recargar la pagina para ver mensajes nuevos.
   pollTimer = setInterval(() => {

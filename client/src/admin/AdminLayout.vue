@@ -6,6 +6,7 @@ import {
   Building2,
   ClipboardList,
   CalendarDays,
+  Users,
   MessageCircle,
   MessageSquare,
   Camera,
@@ -107,7 +108,10 @@ watch(collapsed, (value) => {
 const navGroups = computed(() => [
   {
     label: null,
-    items: [{ to: '/admin/panel', label: 'Panel', icon: LayoutDashboard }],
+    items: [
+      { to: '/admin/panel', label: 'Panel', icon: LayoutDashboard },
+      { to: '/admin/crm', label: 'CRM', icon: Users },
+    ],
   },
   {
     label: 'Inmobiliaria',
