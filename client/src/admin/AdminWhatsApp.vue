@@ -10,19 +10,6 @@ import { stageOf } from './crm'
 const { refresh: refreshUnreadCounts } = useUnreadCounts()
 const route = useRoute()
 
-// Etapa de esta persona en el CRM (si ya existe como contacto).
-const crmContact = ref(null)
-async function loadCrmContact(waId) {
-  crmContact.value = null
-  try {
-    const res = await api.get('/crm/by-conversation', { params: { channel: 'whatsapp', id: waId } })
-    if (selectedWaId.value === waId) crmContact.value = res.data
-  } catch (err) {
-    // 404: todavia no es contacto del CRM, no se muestra nada
-  }
-}
-watch(selectedWaId, (waId) => { if (waId) loadCrmContact(waId) })
-
 const conversations = ref([])
 const loadingConversations = ref(true)
 const selectedWaId = ref(null)
@@ -38,6 +25,19 @@ const attachProgress = ref('')
 const pendingFiles = ref([])
 
 const threadRef = ref(null)
+
+// Etapa de esta persona en el CRM (si ya existe como contacto).
+const crmContact = ref(null)
+async function loadCrmContact(waId) {
+  crmContact.value = null
+  try {
+    const res = await api.get('/crm/by-conversation', { params: { channel: 'whatsapp', id: waId } })
+    if (selectedWaId.value === waId) crmContact.value = res.data
+  } catch (err) {
+    // 404: todavia no es contacto del CRM, no se muestra nada
+  }
+}
+watch(selectedWaId, (waId) => { if (waId) loadCrmContact(waId) })
 const replyRef = ref(null)
 const fileInputRef = ref(null)
 
