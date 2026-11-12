@@ -44,6 +44,7 @@ const router = createRouter({
         { path: 'agenda', name: 'admin-agenda', component: () => import('../admin/AdminAgenda.vue') },
         { path: 'crm', name: 'admin-crm', component: () => import('../admin/AdminCrm.vue') },
         { path: 'whatsapp', name: 'admin-whatsapp', component: () => import('../admin/AdminWhatsApp.vue') },
+        { path: 'whatsapp/conexion', name: 'admin-whatsapp-connect', component: () => import('../admin/AdminWhatsAppConnect.vue') },
         { path: 'instagram', name: 'admin-instagram', component: () => import('../admin/AdminInstagram.vue') },
         { path: 'instagram/dms', name: 'admin-instagram-dms', component: () => import('../admin/AdminInstagramInbox.vue') },
         { path: 'facebook', name: 'admin-facebook', component: () => import('../admin/AdminFacebook.vue') },

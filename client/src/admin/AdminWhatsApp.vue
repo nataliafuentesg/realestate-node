@@ -397,7 +397,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex h-[calc(100dvh-6.5rem)] flex-col font-[family-name:var(--font-mp-body)] lg:h-[calc(100vh-6rem)]">
-    <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">💬 WhatsApp</h1>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="font-[family-name:var(--font-mp-heading)] text-2xl font-medium text-mp-fg">💬 WhatsApp</h1>
+      <RouterLink to="/admin/whatsapp/conexion" class="text-xs text-mp-muted underline hover:text-mp-fg">Conectar número (coexistencia)</RouterLink>
+    </div>
     <p v-if="error" class="mt-2 text-sm text-red-400">{{ error }}</p>
 
     <div class="mt-4 flex min-h-0 flex-1 gap-6 lg:mt-6">
