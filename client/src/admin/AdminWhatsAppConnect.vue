@@ -81,7 +81,8 @@ async function connect() {
         config_id: config.value.configId,
         response_type: 'code',
         override_default_response_type: true,
-        extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' },
+        // Embedded Signup v4 (las versiones 2 y 3 ya fueron retiradas por Meta).
+        extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding' },
       })
     })
     const code = response?.authResponse?.code
@@ -148,6 +149,9 @@ async function disconnect() {
             <p class="text-sm font-medium text-mp-fg">{{ connected.displayPhone || 'Número conectado' }}</p>
             <p class="text-xs text-mp-muted">
               {{ connected.coexistence ? 'Coexistencia con la app del celular activa' : 'Solo en la API (sin app del celular)' }}
+            </p>
+            <p v-if="connected.tokenSource === 'FLOW'" class="mt-1 text-xs text-yellow-400">
+              Este número usa el token del flujo de Meta, que puede vencer a los 60 días. Conviene asignar la cuenta al usuario del sistema para usar un token sin vencimiento.
             </p>
           </div>
           <button class="text-xs text-mp-muted underline hover:text-mp-fg" @click="disconnect">Volver al número del servidor</button>
